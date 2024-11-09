@@ -5,20 +5,20 @@ use core::panic::PanicInfo;
 
 use embassy_executor::Spawner;
 use embassy_nrf::{
-    gpio::{Input, Pin, Pull},
+    gpio::{Input, Output, Pin, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::SPI2,
     ppi::Group,
 };
 use embassy_sync::{blocking_mutex::raw::NoopRawMutex, mutex::Mutex};
+use hooks::NegBacklightHooks;
 use once_cell::sync::OnceCell;
 
 use rktk::{
-    hooks::create_empty_hooks,
+    hooks::EmptyMainHooks,
     interface::{
-        backlight::DummyBacklightDriver, debounce::EagerDebounceDriver,
-        double_tap::DummyDoubleTapResetDriver, mouse::DummyMouseDriverBuilder,
-        split::DummySplitDriver, storage::DummyStorageDriver,
+        debounce::EagerDebounceDriver, double_tap::DummyDoubleTapResetDriver,
+        mouse::DummyMouseDriverBuilder, split::DummySplitDriver, storage::DummyStorageDriver,
     },
     task::Drivers,
 };
@@ -31,6 +31,7 @@ use rktk_drivers_nrf::{
 use defmt_rtt as _;
 use nrf_softdevice as _;
 
+mod hooks;
 mod keymap;
 mod misc;
 
@@ -100,6 +101,9 @@ async fn main(_spawner: Spawner) {
         embassy_nrf::gpio::Level::Low,
         embassy_nrf::gpio::OutputDrive::Standard,
     );
+
+    let enc_a = embassy_nrf::gpio::Input::new(p.P0_29, embassy_nrf::gpio::Pull::Down);
+    let enc_b = embassy_nrf::gpio::Input::new(p.P0_02, embassy_nrf::gpio::Pull::Down);
 
     interrupt::USBD.set_priority(Priority::P2);
     interrupt::SPIM2_SPIS2_SPI2.set_priority(Priority::P2);
@@ -218,7 +222,15 @@ async fn main(_spawner: Spawner) {
         debounce: EagerDebounceDriver::new(embassy_time::Duration::from_millis(20)),
     };
 
-    rktk::task::start(drivers, keymap::KEY_CONFIG, create_empty_hooks()).await;
+    rktk::task::start(
+        drivers,
+        keymap::KEY_CONFIG,
+        rktk::hooks::Hooks {
+            main: EmptyMainHooks,
+            backlight: NegBacklightHooks(led_cutoff),
+        },
+    )
+    .await;
 }
 
 #[panic_handler]
