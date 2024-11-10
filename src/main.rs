@@ -5,7 +5,7 @@ use core::panic::PanicInfo;
 
 use embassy_executor::Spawner;
 use embassy_nrf::{
-    gpio::{Input, Output, Pin, Pull},
+    gpio::{Input, Pin, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::SPI2,
     ppi::Group,
@@ -102,9 +102,6 @@ async fn main(_spawner: Spawner) {
         embassy_nrf::gpio::OutputDrive::Standard,
     );
 
-    let enc_a = embassy_nrf::gpio::Input::new(p.P0_29, embassy_nrf::gpio::Pull::Down);
-    let enc_b = embassy_nrf::gpio::Input::new(p.P0_02, embassy_nrf::gpio::Pull::Down);
-
     interrupt::USBD.set_priority(Priority::P2);
     interrupt::SPIM2_SPIS2_SPI2.set_priority(Priority::P2);
     interrupt::SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0.set_priority(Priority::P2);
@@ -130,7 +127,7 @@ async fn main(_spawner: Spawner) {
         p.P0_20,
         pmw3360::recommended_pmw3360_config(),
     ));
-    let ball = pmw3360::create_pmw3360(&shared_spi, p.P1_06);
+    // let ball = pmw3360::create_pmw3360(&shared_spi, p.P1_06);
 
     let keyscan = create_shift_register_matrix::<'_, '_, _, _, _, 8, 5, 8, 5>(
         &shared_spi,
@@ -146,15 +143,15 @@ async fn main(_spawner: Spawner) {
         misc::translate_key_position,
     );
 
-    let split = UartHalfDuplexSplitDriver::new(
-        p.P0_08.degrade(),
-        p.UARTE0,
-        Irqs,
-        p.TIMER1,
-        p.PPI_CH0,
-        p.PPI_CH1,
-        p.PPI_GROUP0.degrade(),
-    );
+    // let split = UartHalfDuplexSplitDriver::new(
+    //     p.P0_08.degrade(),
+    //     p.UARTE0,
+    //     Irqs,
+    //     p.TIMER1,
+    //     p.PPI_CH0,
+    //     p.PPI_CH1,
+    //     p.PPI_GROUP0.degrade(),
+    // );
 
     let backlight = Ws2812Pwm::new(p.PWM0, p.P0_24);
 

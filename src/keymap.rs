@@ -6,6 +6,11 @@ use rktk::keymanager::keycode::{
 use rktk::keymanager::state::config::TapDanceConfig;
 use rktk::{KeyConfig, Layer, LayerMap};
 
+const L3BS: KeyAction = KeyAction::TapHold(
+    KeyCode::Key(Key::Backspace),
+    KeyCode::Layer(LayerOp::Momentary(3)),
+);
+
 const L2ENTER: KeyAction = KeyAction::TapHold(
     KeyCode::Key(Key::Enter),
     KeyCode::Layer(LayerOp::Momentary(2)),
@@ -34,7 +39,7 @@ const L0: LayerMap = [
     [  TAB  , Q     , W     , E     , R     , T     , _____ , _____ , /**/ _____ , _____ , Y     , U     , I     , O     , P    , MINUS],
     [  ESC  , A     , S     , D     , F     , G     , _____ , _____ , /**/ _____ , _____ , H     , J     , K     , L     , SCLN , QUOTE],
     [ L_SHFT, Z     , X     , C     , V     , B     , LBRC  , _____ , /**/ _____ , TD(0) , N     , M     , COMM  , DOT   , SLASH, BSLSH],
-    [ L_CTRL, L_GUI , TG(2) , L_ALT , L3SPC , L2SPC , SPACE , _____ , /**/ BS    , BS    ,L2ENTER, _____ , _____ , _____ ,R_SHFT,R_CTRL],
+    [ L_CTRL, L_GUI , TG(2) , L_ALT , L3SPC , L2SPC , SPACE , _____ , /**/ BS    , L3BS  ,L2ENTER, _____ , _____ , _____ ,R_SHFT,R_CTRL],
 ];
 
 #[rustfmt::skip]
@@ -59,7 +64,7 @@ const L2: LayerMap = [
 
 #[rustfmt::skip]
 const L3: LayerMap = [
-    [ FL_CLR, _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
+    [ FL_CLR, _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , OUTPUT_BLE , OUTPUT_USB , _____ , _____ , _____ , _____ ],
     [ _____ , _____ , KP7   , KP8   , KP9   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D1), SF(D2), SF(D3), SF(D4), SF(D5), _____ ],
     [ _____ , _____ , KP4   , KP5   , KP6   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D6), SF(D7), SF(D8), SF(D9), SF(D0), _____ ],
     [ _____ , _____ , KP1   , KP2   , KP3   , _____ , _____ ,_____ , /**/ _____ ,_____ , QUOTE,SF(QUOTE),EQUAL,SF(EQUAL), _____ , _____ ],
