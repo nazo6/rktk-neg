@@ -53,4 +53,4 @@ ssd1306 = { version = "0.9.0" }
 usb = []
 # Enables ble driver. If this feature is enabled, this side is always master.
 ble = ["rktk-drivers-nrf/ble"]
-default = ["usb"]
+default = ["usb", "ble"]
