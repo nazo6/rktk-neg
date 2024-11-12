@@ -35,7 +35,7 @@ const FL_CLR: KeyAction = KeyAction::Normal(KeyCode::Special(Special::FlashClear
 
 #[rustfmt::skip]
 const L0: LayerMap = [
-    [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , D6    , D7    , D8    , D9   , D0   , EQUAL ],
+    [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , BLE_BOND_CLEAR , D7    , D8    , D9   , D0   , EQUAL ],
     [  TAB  , Q     , W     , E     , R     , T     , _____ , _____ , /**/ _____ , _____ , Y     , U     , I     , O     , P    , MINUS],
     [  ESC  , A     , S     , D     , F     , G     , _____ , _____ , /**/ _____ , _____ , H     , J     , K     , L     , SCLN , QUOTE],
     [ L_SHFT, Z     , X     , C     , V     , B     , LBRC  , _____ , /**/ _____ , TD(0) , N     , M     , COMM  , DOT   , SLASH, BSLSH],
