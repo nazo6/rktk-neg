@@ -28,7 +28,6 @@ use rktk_drivers_nrf::{
     softdevice::flash::get_flash, split::uart_half_duplex::UartHalfDuplexSplitDriver, usb::UsbOpts,
 };
 
-use defmt_rtt as _;
 use nrf_softdevice as _;
 
 mod hooks;
