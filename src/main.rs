@@ -5,10 +5,9 @@ use core::panic::PanicInfo;
 
 use embassy_executor::Spawner;
 use embassy_nrf::{
-    gpio::{Input, Pin, Pull},
+    gpio::{Input, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::SPI2,
-    ppi::Group,
 };
 use embassy_sync::{blocking_mutex::raw::NoopRawMutex, mutex::Mutex};
 use hooks::NegBacklightHooks;
@@ -18,14 +17,14 @@ use rktk::{
     hooks::EmptyMainHooks,
     interface::{
         debounce::EagerDebounceDriver, double_tap::DummyDoubleTapResetDriver,
-        mouse::DummyMouseDriverBuilder, split::DummySplitDriver, storage::DummyStorageDriver,
+        split::DummySplitDriver, storage::DummyStorageDriver,
     },
     task::Drivers,
 };
 use rktk_drivers_nrf::{
     backlight::ws2812_pwm::Ws2812Pwm, display::ssd1306::create_ssd1306,
-    keyscan::shift_register_matrix::create_shift_register_matrix, mouse::pmw3360, panic_utils,
-    softdevice::flash::get_flash, split::uart_half_duplex::UartHalfDuplexSplitDriver, usb::UsbOpts,
+    keyscan::shift_register_matrix::create_shift_register_matrix, mouse::paw3395, panic_utils,
+    softdevice::flash::get_flash, usb::UsbOpts,
 };
 
 use nrf_softdevice as _;
@@ -124,9 +123,16 @@ async fn main(_spawner: Spawner) {
         p.P0_17,
         p.P0_22,
         p.P0_20,
-        pmw3360::recommended_pmw3360_config(),
+        paw3395::recommended_paw3395_config(),
     ));
-    // let ball = pmw3360::create_pmw3360(&shared_spi, p.P1_06);
+    let ball = paw3395::create_paw3395(
+        &shared_spi,
+        p.P1_06,
+        paw3395::config::Config {
+            mode: paw3395::config::HP_MODE,
+            lift_cutoff: paw3395::config::LiftCutoff::_2mm,
+        },
+    );
 
     let keyscan = create_shift_register_matrix::<'_, '_, _, _, _, 8, 5, 8, 5>(
         &shared_spi,
@@ -190,7 +196,7 @@ async fn main(_spawner: Spawner) {
     let drivers = Drivers {
         keyscan,
         double_tap_reset: Option::<DummyDoubleTapResetDriver>::None,
-        mouse_builder: Option::<DummyMouseDriverBuilder>::None,
+        mouse_builder: Some(ball),
         usb_builder: {
             #[cfg(feature = "usb")]
             let usb = {
