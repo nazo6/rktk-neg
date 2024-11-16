@@ -1,10 +1,9 @@
-use rktk::config::static_config::CONFIG;
 use rktk::keymanager::keycode::*;
 use rktk::keymanager::keycode::{
     key::*, layer::*, media::*, modifier::*, mouse::*, special::*, utils::*,
 };
 use rktk::keymanager::state::config::TapDanceConfig;
-use rktk::{KeyConfig, Layer, LayerMap};
+use rktk::{KeyConfig, Keymap, Layer, LayerMap};
 
 const L3BS: KeyAction = KeyAction::TapHold(
     KeyCode::Key(Key::Backspace),
@@ -35,7 +34,7 @@ const FL_CLR: KeyAction = KeyAction::Normal(KeyCode::Special(Special::FlashClear
 
 #[rustfmt::skip]
 const L0: LayerMap = [
-    [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , BLE_BOND_CLEAR , D7    , D8    , D9   , D0   , EQUAL ],
+    [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , D6    , D7    , D8    , D9   , D0   , EQUAL ],
     [  TAB  , Q     , W     , E     , R     , T     , _____ , _____ , /**/ _____ , _____ , Y     , U     , I     , O     , P    , MINUS],
     [  ESC  , A     , S     , D     , F     , G     , _____ , _____ , /**/ _____ , _____ , H     , J     , K     , L     , SCLN , QUOTE],
     [ L_SHFT, Z     , X     , C     , V     , B     , LBRC  , _____ , /**/ _____ , TD(0) , N     , M     , COMM  , DOT   , SLASH, BSLSH],
@@ -80,28 +79,31 @@ const L4: LayerMap = [
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
 ];
 
-pub const KEYMAP: [Layer; CONFIG.config.rktk.layer_count as usize] = [
-    Layer {
-        map: L0,
-        arrowmouse: false,
-    },
-    Layer {
-        map: L1,
-        arrowmouse: false,
-    },
-    Layer {
-        map: L2,
-        arrowmouse: false,
-    },
-    Layer {
-        map: L3,
-        arrowmouse: true,
-    },
-    Layer {
-        map: L4,
-        arrowmouse: true,
-    },
-];
+pub const KEYMAP: Keymap = Keymap {
+    encoder_keys: [(KeyCode::Key(Key::VolumeUp), KeyCode::Key(Key::VolumeDown))],
+    layers: [
+        Layer {
+            map: L0,
+            arrowmouse: false,
+        },
+        Layer {
+            map: L1,
+            arrowmouse: false,
+        },
+        Layer {
+            map: L2,
+            arrowmouse: false,
+        },
+        Layer {
+            map: L3,
+            arrowmouse: true,
+        },
+        Layer {
+            map: L4,
+            arrowmouse: true,
+        },
+    ],
+};
 
 pub const KEY_CONFIG: KeyConfig = KeyConfig {
     keymap: KEYMAP,

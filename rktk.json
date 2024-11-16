@@ -3,6 +3,7 @@
   "keyboard": {
     "cols": 16,
     "rows": 5,
+    "encoder_count": 1,
 
     "right_led_count": 34,
     "left_led_count": 37,
@@ -227,7 +228,7 @@
   "config": {
     "rktk": {
       "scan_interval_keyboard": 10,
-      "scan_interval_mouse": 5
+      "scan_interval_mouse": 1
     }
   }
 }

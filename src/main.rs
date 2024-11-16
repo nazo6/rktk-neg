@@ -17,13 +17,15 @@ use rktk::{
     hooks::EmptyMainHooks,
     interface::{
         debounce::EagerDebounceDriver, double_tap::DummyDoubleTapResetDriver,
-        split::DummySplitDriver, storage::DummyStorageDriver,
+        split::DummySplitDriver,
     },
     task::Drivers,
 };
+use rktk_drivers_common::encoder::GeneralEncoder;
+use rktk_drivers_nrf::panic_utils;
 use rktk_drivers_nrf::{
     backlight::ws2812_pwm::Ws2812Pwm, display::ssd1306::create_ssd1306,
-    keyscan::shift_register_matrix::create_shift_register_matrix, mouse::paw3395, panic_utils,
+    keyscan::shift_register_matrix::create_shift_register_matrix, mouse::paw3395,
     softdevice::flash::get_flash, usb::UsbOpts,
 };
 
@@ -125,12 +127,15 @@ async fn main(_spawner: Spawner) {
         p.P0_20,
         paw3395::recommended_paw3395_config(),
     ));
+
+    // let ball = pmw3360::create_pmw3360(&shared_spi, p.P1_06);
+
     let ball = paw3395::create_paw3395(
         &shared_spi,
         p.P1_06,
         paw3395::config::Config {
-            mode: paw3395::config::HP_MODE,
-            lift_cutoff: paw3395::config::LiftCutoff::_2mm,
+            mode: paw3395::config::LP_MODE,
+            lift_cutoff: paw3395::config::LiftCutoff::_1mm,
         },
     );
 
@@ -148,15 +153,10 @@ async fn main(_spawner: Spawner) {
         misc::translate_key_position,
     );
 
-    // let split = UartHalfDuplexSplitDriver::new(
-    //     p.P0_08.degrade(),
-    //     p.UARTE0,
-    //     Irqs,
-    //     p.TIMER1,
-    //     p.PPI_CH0,
-    //     p.PPI_CH1,
-    //     p.PPI_GROUP0.degrade(),
-    // );
+    let encoder = GeneralEncoder::new([(
+        Input::new(p.P0_02, Pull::Down),
+        Input::new(p.P0_29, Pull::Down),
+    )]);
 
     let backlight = Ws2812Pwm::new(p.PWM0, p.P0_24);
 
@@ -230,9 +230,10 @@ async fn main(_spawner: Spawner) {
         display_builder: Some(display),
         split: DummySplitDriver,
         backlight: Some(backlight),
-        storage: Option::<DummyStorageDriver>::None,
+        storage: Some(storage),
         ble_builder,
         debounce: EagerDebounceDriver::new(embassy_time::Duration::from_millis(20)),
+        encoder: Some(encoder),
     };
 
     rktk::task::start(
