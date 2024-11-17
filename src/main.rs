@@ -10,7 +10,7 @@ use embassy_nrf::{
     interrupt::{self, InterruptExt, Priority},
     peripherals::SPI2,
 };
-use embassy_sync::{blocking_mutex::raw::NoopRawMutex, mutex::Mutex};
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use hooks::NegBacklightHooks;
 use once_cell::sync::OnceCell;
 
@@ -18,7 +18,7 @@ use rktk::{
     hooks::EmptyMainHooks,
     interface::{
         debounce::EagerDebounceDriver, double_tap::DummyDoubleTapResetDriver,
-        split::DummySplitDriver,
+        split::DummySplitDriver, storage::DummyStorageDriver,
     },
     task::Drivers,
 };
@@ -97,8 +97,6 @@ async fn main(_spawner: Spawner) {
     config.time_interrupt_priority = Priority::P2;
     config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
     config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
-    config.dcdc.reg0 = false;
-    config.dcdc.reg0_voltage = None;
     let p = embassy_nrf::init(config);
 
     let led_cutoff = embassy_nrf::gpio::Output::new(
@@ -127,7 +125,8 @@ async fn main(_spawner: Spawner) {
     let mut spi_config = paw3395::recommended_paw3395_config();
     spi_config.sck_drive = OutputDrive::Standard;
     spi_config.mosi_drive = OutputDrive::Standard;
-    let shared_spi = Mutex::<NoopRawMutex, _>::new(embassy_nrf::spim::Spim::new(
+    spi_config.frequency = embassy_nrf::spim::Frequency::K250;
+    let shared_spi = Mutex::<CriticalSectionRawMutex, _>::new(embassy_nrf::spim::Spim::new(
         p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
     ));
 
@@ -137,7 +136,7 @@ async fn main(_spawner: Spawner) {
         &shared_spi,
         p.P1_06,
         paw3395::config::Config {
-            mode: paw3395::config::OFFICE_MODE,
+            mode: paw3395::config::LP_MODE,
             lift_cutoff: paw3395::config::LiftCutoff::_1mm,
         },
     );
@@ -233,7 +232,7 @@ async fn main(_spawner: Spawner) {
         display_builder: Some(display),
         split: DummySplitDriver,
         backlight: Some(backlight),
-        storage: Some(storage),
+        storage: Option::<DummyStorageDriver>::None,
         ble_builder,
         debounce: EagerDebounceDriver::new(embassy_time::Duration::from_millis(20)),
         encoder: Some(encoder),
