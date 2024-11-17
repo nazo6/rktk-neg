@@ -1,11 +1,12 @@
 #![no_std]
 #![no_main]
+#![feature(impl_trait_in_assoc_type)]
 
 use core::panic::PanicInfo;
 
 use embassy_executor::Spawner;
 use embassy_nrf::{
-    gpio::{Input, Pull},
+    gpio::{Input, OutputDrive, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::SPI2,
 };
@@ -94,6 +95,10 @@ async fn main(_spawner: Spawner) {
     let mut config = embassy_nrf::config::Config::default();
     config.gpiote_interrupt_priority = Priority::P2;
     config.time_interrupt_priority = Priority::P2;
+    config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
+    config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
+    config.dcdc.reg0 = false;
+    config.dcdc.reg0_voltage = None;
     let p = embassy_nrf::init(config);
 
     let led_cutoff = embassy_nrf::gpio::Output::new(
@@ -119,13 +124,11 @@ async fn main(_spawner: Spawner) {
         cortex_m::asm::udf()
     };
 
+    let mut spi_config = paw3395::recommended_paw3395_config();
+    spi_config.sck_drive = OutputDrive::Standard;
+    spi_config.mosi_drive = OutputDrive::Standard;
     let shared_spi = Mutex::<NoopRawMutex, _>::new(embassy_nrf::spim::Spim::new(
-        p.SPI2,
-        Irqs,
-        p.P0_17,
-        p.P0_22,
-        p.P0_20,
-        paw3395::recommended_paw3395_config(),
+        p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
     ));
 
     // let ball = pmw3360::create_pmw3360(&shared_spi, p.P1_06);
@@ -134,7 +137,7 @@ async fn main(_spawner: Spawner) {
         &shared_spi,
         p.P1_06,
         paw3395::config::Config {
-            mode: paw3395::config::LP_MODE,
+            mode: paw3395::config::OFFICE_MODE,
             lift_cutoff: paw3395::config::LiftCutoff::_1mm,
         },
     );
@@ -235,6 +238,12 @@ async fn main(_spawner: Spawner) {
         debounce: EagerDebounceDriver::new(embassy_time::Duration::from_millis(20)),
         encoder: Some(encoder),
     };
+
+    // let vcc_cutoff = embassy_nrf::gpio::Output::new(
+    //     p.P0_13,
+    //     embassy_nrf::gpio::Level::Low,
+    //     embassy_nrf::gpio::OutputDrive::Standard,
+    // );
 
     rktk::task::start(
         drivers,
