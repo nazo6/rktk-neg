@@ -80,7 +80,10 @@ const L4: LayerMap = [
 ];
 
 pub const KEYMAP: Keymap = Keymap {
-    encoder_keys: [(KeyCode::Key(Key::VolumeUp), KeyCode::Key(Key::VolumeDown))],
+    encoder_keys: [(
+        KeyCode::Media(Media::VolumeIncrement),
+        KeyCode::Media(Media::VolumeDecrement),
+    )],
     layers: [
         Layer {
             map: L0,
