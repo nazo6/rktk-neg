@@ -1,0 +1,2 @@
+[tasks.build-deploy]
+script = "rktk-cli  build -d /mnt/e"
