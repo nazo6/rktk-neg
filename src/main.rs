@@ -60,6 +60,14 @@ mod no_usb {
 
 use embassy_nrf::{bind_interrupts, peripherals::USBD};
 
+extern crate alloc;
+
+use core::ptr::addr_of_mut;
+use embedded_alloc::LlffHeap as Heap;
+
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
+
 bind_interrupts!(pub struct Irqs {
     USBD => embassy_nrf::usb::InterruptHandler<USBD>;
     SPIM2_SPIS2_SPI2 => embassy_nrf::spim::InterruptHandler<SPI2>;
@@ -75,6 +83,13 @@ pub fn map_key(row: usize, col: usize) -> Option<(usize, usize)> {
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
+    {
+        use core::mem::MaybeUninit;
+        const HEAP_SIZE: usize = 1024;
+        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+        unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
+    }
+
     // - About limitation of softdevice
     // By enabling softdevice, some interrupt priority level (P0,P1,P4)
     // and peripherals are reserved by softdevice, and using them causes panic.
