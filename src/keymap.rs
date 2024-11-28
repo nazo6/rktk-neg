@@ -5,11 +5,6 @@ use rktk::keymanager::keycode::{
 use rktk::keymanager::state::config::TapDanceConfig;
 use rktk::{KeyConfig, Keymap, Layer, LayerMap};
 
-const L3BS: KeyAction = KeyAction::TapHold(
-    KeyCode::Key(Key::Backspace),
-    KeyCode::Layer(LayerOp::Momentary(3)),
-);
-
 const L2ENTER: KeyAction = KeyAction::TapHold(
     KeyCode::Key(Key::Enter),
     KeyCode::Layer(LayerOp::Momentary(2)),
@@ -30,15 +25,13 @@ const L4GRV: KeyAction = KeyAction::TapHold(
     KeyCode::Layer(LayerOp::Momentary(4)),
 );
 
-const FL_CLR: KeyAction = KeyAction::Normal(KeyCode::Special(Special::FlashClear));
-
 #[rustfmt::skip]
 const L0: LayerMap = [
-    [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , D6    , D7    , D8    , D9   , D0   , EQUAL ],
-    [  TAB  , Q     , W     , E     , R     , T     , _____ , _____ , /**/ _____ , _____ , Y     , U     , I     , O     , P    , MINUS],
-    [  ESC  , A     , S     , D     , F     , G     , _____ , _____ , /**/ _____ , _____ , H     , J     , K     , L     , SCLN , QUOTE],
-    [ L_SHFT, Z     , X     , C     , V     , B     , LBRC  , _____ , /**/ _____ , TD(0) , N     , M     , COMM  , DOT   , SLASH, BSLSH],
-    [ L_CTRL, L_GUI , TG(2) , L_ALT , L3SPC , L2SPC , SPACE , _____ , /**/ BS    , BS    ,L2ENTER, _____ , _____ , _____ ,R_SHFT,R_CTRL],
+    [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , D6    , D7    , D8    , D9    , D0    , EQUAL ],
+    [  TAB  , Q     , W     , E     , R     , T     , _____ , _____ , /**/ _____ , _____ , Y     , U     , I     , O     , P     , MINUS ],
+    [  ESC  , A     , S     , D     , F     , G     , _____ , _____ , /**/ _____ , _____ , H     , J     , K     , L     , SCLN  , QUOTE ],
+    [ L_SHFT, Z     , X     , C     , V     , B     , LBRC  , _____ , /**/ _____ , TD(0) , N     , M     , COMM  , DOT   , SLASH , BSLSH ],
+    [ L_CTRL, L_GUI , TG(2) , L_ALT , L3SPC , L2SPC , SPACE , _____ , /**/ BS    , BS    ,L2ENTER, _____ , _____ , _____ , R_SHFT, R_CTRL],
 ];
 
 #[rustfmt::skip]
@@ -46,7 +39,7 @@ const L0: LayerMap = [
 const L1: LayerMap = [
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
-    [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , M_L   ,MO_SCRL, M_R   , _____ , _____ ],
+    [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____,AML_RESET, M_L  ,MO_SCRL, M_R   , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , M_BCK , M_MID , M_FWD , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
 ];
@@ -61,6 +54,7 @@ const L2: LayerMap = [
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,DELETE, _____ , _____ , _____ , _____ , PRTSC , _____ ],
 ];
 
+const FL_CLR: KeyAction = FLASH_CLEAR;
 #[rustfmt::skip]
 const L3: LayerMap = [
     [ FL_CLR, _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , OUTPUT_BLE , OUTPUT_USB , _____ , _____ , _____ , _____ ],
@@ -113,7 +107,7 @@ pub const KEY_CONFIG: KeyConfig = KeyConfig {
     tap_dance: [
         Some(TapDanceConfig {
             tap: [
-                Some(KeyCode::Layer(LayerOp::Toggle(1))),
+                Some(KeyCode::Key(Key::RightBracket)),
                 Some(KeyCode::Layer(LayerOp::Toggle(2))),
                 Some(KeyCode::Layer(LayerOp::Toggle(3))),
                 Some(KeyCode::Layer(LayerOp::Toggle(4))),

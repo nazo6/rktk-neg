@@ -12,6 +12,7 @@ use embassy_nrf::{
 };
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use hooks::NegBacklightHooks;
+use misc::PAW3395_CONFIG;
 use once_cell::sync::OnceCell;
 
 use rktk::{
@@ -147,14 +148,7 @@ async fn main(_spawner: Spawner) {
 
     // let ball = pmw3360::create_pmw3360(&shared_spi, p.P1_06);
 
-    let ball = paw3395::create_paw3395(
-        &shared_spi,
-        p.P1_06,
-        paw3395::config::Config {
-            mode: paw3395::config::LP_MODE,
-            lift_cutoff: paw3395::config::LiftCutoff::_1mm,
-        },
-    );
+    let ball = paw3395::create_paw3395(&shared_spi, p.P1_06, PAW3395_CONFIG);
 
     let keyscan = create_shift_register_matrix::<'_, '_, _, _, _, 8, 5, 8, 5>(
         &shared_spi,
