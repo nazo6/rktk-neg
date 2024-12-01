@@ -1278,6 +1278,7 @@ dependencies = [
  "sequential-storage",
  "ssd1306",
  "static_cell",
+ "thiserror",
  "usbd-hid",
 ]
 
@@ -1308,6 +1309,7 @@ dependencies = [
  "ssd1306",
  "ssmarshal",
  "static_cell",
+ "thiserror",
  "usbd-hid",
 ]
 
