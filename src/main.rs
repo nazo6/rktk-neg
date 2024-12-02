@@ -18,17 +18,13 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use embedded_alloc::LlffHeap as Heap;
 use misc::PAW3395_CONFIG;
 use once_cell::sync::OnceCell;
-use rktk::{
-    drivers::{interface::debounce::EagerDebounceDriver, Drivers},
-    none_driver,
-};
-use rktk_drivers_common::encoder::GeneralEncoder;
+use rktk::{drivers::Drivers, none_driver};
+use rktk_drivers_common::{debounce::EagerDebounceDriver, encoder::GeneralEncoder, panic_utils};
 use rktk_drivers_nrf::{
-    backlight::ws2812_pwm::Ws2812Pwm,
     display::ssd1306::create_ssd1306,
     keyscan::shift_register_matrix::create_shift_register_matrix,
     mouse::paw3395,
-    panic_utils,
+    rgb::ws2812_pwm::Ws2812Pwm,
     softdevice::{
         ble::{init_ble_server, NrfBleDriverBuilder},
         flash::get_flash,
@@ -151,7 +147,7 @@ async fn main(_spawner: Spawner) {
             Input::new(p.P0_29, Pull::Down),
         )]);
 
-        let backlight = Ws2812Pwm::new(p.PWM0, p.P0_24);
+        let rgb = Ws2812Pwm::new(p.PWM0, p.P0_24);
         let usb = {
             let vbus = SOFTWARE_VBUS.get_or_init(|| SoftwareVbusDetect::new(true, true));
             let driver = embassy_nrf::usb::Driver::new(p.USBD, Irqs, vbus);
@@ -186,7 +182,7 @@ async fn main(_spawner: Spawner) {
             usb_builder: usb,
             display_builder: Some(display),
             split: none_driver!(Split),
-            backlight: Some(backlight),
+            rgb: Some(rgb),
             storage: Some(storage),
             ble_builder,
             debounce: Some(EagerDebounceDriver::new(
