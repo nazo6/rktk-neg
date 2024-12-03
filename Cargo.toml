@@ -5,6 +5,9 @@ name = "negl-nrf52840"
 version = "0.1.0"
 edition = "2021"
 
+[package.metadata.rktk-cli]
+mcu = "Nrf52840"
+
 [dependencies]
 rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
   "ble",
@@ -50,3 +53,7 @@ once_cell = { version = "1.19.0", default-features = false, features = [
   "atomic-polyfill",
 ] }
 ssd1306 = { version = "0.9.0" }
+
+[features]
+right = []
+left = []

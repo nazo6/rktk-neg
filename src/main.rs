@@ -18,8 +18,13 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use embedded_alloc::LlffHeap as Heap;
 use misc::PAW3395_CONFIG;
 use once_cell::sync::OnceCell;
-use rktk::{drivers::Drivers, none_driver};
-use rktk_drivers_common::{debounce::EagerDebounceDriver, encoder::GeneralEncoder, panic_utils};
+use rktk::{
+    drivers::{interface::keyscan::Hand, Drivers},
+    none_driver,
+};
+use rktk_drivers_common::{
+    debounce::EagerDebounceDriver, encoder::GeneralEncoder, keyscan::HandDetector, panic_utils,
+};
 use rktk_drivers_nrf::{
     display::ssd1306::create_ssd1306,
     keyscan::shift_register_matrix::create_shift_register_matrix,
@@ -138,7 +143,7 @@ async fn main(_spawner: Spawner) {
                 Input::new(p.P0_10, Pull::Down), // ROW3
                 Input::new(p.P0_09, Pull::Down), // ROW4
             ],
-            (2, 6),
+            HandDetector::Constant(Hand::Right),
             misc::translate_key_position,
         );
 
