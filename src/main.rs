@@ -5,29 +5,34 @@
 use core::panic::PanicInfo;
 use core::ptr::addr_of_mut;
 
+use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice;
 use embassy_executor::Spawner;
 use embassy_nrf::{
     bind_interrupts,
-    gpio::{Input, OutputDrive, Pull},
+    gpio::{Input, Output, OutputDrive, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::{SPI2, USBD},
+    twim::Twim,
     usb::vbus_detect::SoftwareVbusDetect,
     Peripherals,
 };
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
+use embassy_sync::{blocking_mutex::raw::ThreadModeRawMutex, mutex::Mutex};
 use embedded_alloc::LlffHeap as Heap;
-use misc::PAW3395_CONFIG;
 use once_cell::sync::OnceCell;
 use rktk::{
     drivers::{interface::keyscan::Hand, Drivers},
     none_driver,
 };
 use rktk_drivers_common::{
-    debounce::EagerDebounceDriver, encoder::GeneralEncoder, keyscan::HandDetector, panic_utils,
+    debounce::EagerDebounceDriver,
+    display::ssd1306::Ssd1306DisplayBuilder,
+    encoder::GeneralEncoder,
+    keyscan::{shift_register_matrix::ShiftRegisterMatrix, HandDetector},
+    mouse::paw3395::Paw3395Builder,
+    panic_utils,
+    usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
 };
 use rktk_drivers_nrf::{
-    display::ssd1306::create_ssd1306,
-    keyscan::shift_register_matrix::create_shift_register_matrix,
     mouse::paw3395,
     rgb::ws2812_pwm::Ws2812Pwm,
     softdevice::{
@@ -35,7 +40,6 @@ use rktk_drivers_nrf::{
         flash::get_flash,
     },
     system::NrfSystemDriver,
-    usb::{new_usb, Config as UsbConfig, UsbOpts},
 };
 
 use nrf_softdevice as _;
@@ -105,11 +109,11 @@ async fn main(_spawner: Spawner) {
 
     // create shared SPI bus
     let shared_spi = {
-        let mut spi_config = paw3395::recommended_paw3395_config();
+        let mut spi_config = paw3395::recommended_spi_config();
         spi_config.sck_drive = OutputDrive::Standard;
         spi_config.mosi_drive = OutputDrive::Standard;
         spi_config.frequency = embassy_nrf::spim::Frequency::K250;
-        Mutex::<CriticalSectionRawMutex, _>::new(embassy_nrf::spim::Spim::new(
+        Mutex::<ThreadModeRawMutex, _>::new(embassy_nrf::spim::Spim::new(
             p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
         ))
     };
@@ -119,23 +123,36 @@ async fn main(_spawner: Spawner) {
     let (flash, cache) = get_flash(sd);
 
     let drivers = {
-        let Some(display) = panic_utils::display_message_if_panicked(create_ssd1306(
-            p.TWISPI0,
-            Irqs,
-            p.P1_00,
-            p.P0_11,
+        let display = Ssd1306DisplayBuilder::new(
+            Twim::new(
+                p.TWISPI0,
+                Irqs,
+                p.P1_00,
+                p.P0_11,
+                rktk_drivers_nrf::display::ssd1306::recommended_i2c_config(),
+            ),
             ssd1306::size::DisplaySize128x32,
-        ))
-        .await
-        else {
+        );
+        let Some(display) = panic_utils::display_message_if_panicked(display).await else {
             cortex_m::asm::udf()
         };
 
-        let ball = paw3395::create_paw3395(&shared_spi, p.P1_06, PAW3395_CONFIG);
+        let ball_cs = Output::new(
+            p.P1_06,
+            embassy_nrf::gpio::Level::High,
+            OutputDrive::Standard,
+        );
+        let ball_spi_device = SpiDevice::new(&shared_spi, ball_cs);
+        let ball = Paw3395Builder::new(ball_spi_device, misc::PAW3395_CONFIG);
 
-        let keyscan = create_shift_register_matrix::<'_, '_, _, _, _, 8, 5, 8, 5>(
-            &shared_spi,
+        let shift_register_cs = Output::new(
             p.P1_04,
+            embassy_nrf::gpio::Level::High,
+            OutputDrive::Standard,
+        );
+        let shift_register_spi_device = SpiDevice::new(&shared_spi, shift_register_cs);
+        let keyscan = ShiftRegisterMatrix::<_, _, 8, 5, 8, 5>::new(
+            shift_register_spi_device,
             [
                 Input::new(p.P1_15, Pull::Down), // ROW0
                 Input::new(p.P1_13, Pull::Down), // ROW1
@@ -158,7 +175,7 @@ async fn main(_spawner: Spawner) {
             let driver = embassy_nrf::usb::Driver::new(p.USBD, Irqs, vbus);
             let opts = UsbOpts {
                 config: {
-                    let mut config = UsbConfig::new(0xc0de, 0xcafe);
+                    let mut config = UsbDriverConfig::new(0xc0de, 0xcafe);
 
                     config.manufacturer = Some("nazo6");
                     config.product = Some("negL");
@@ -173,7 +190,7 @@ async fn main(_spawner: Spawner) {
                 kb_poll_interval: 5,
                 driver,
             };
-            Some(new_usb(opts))
+            Some(CommonUsbDriverBuilder::new(opts))
         };
 
         let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
