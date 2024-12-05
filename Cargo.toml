@@ -14,7 +14,7 @@ rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
   # "nightly",
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
-rktk-keymanager = { path = "../rktk/lib/rktk-keymanager", features = ["alloc"] }
+rktk-keymanager = { path = "../rktk/lib/rktk-keymanager" }
 
 rktk = { path = "../rktk/lib/rktk" }
 
@@ -44,7 +44,6 @@ nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-s
   "s140",
   "nrf52840",
 ] }
-embedded-alloc = "0.6.0"
 
 cortex-m = { version = "0.7.7", features = ["inline-asm"] }
 cortex-m-rt = { version = "0.7.3" }

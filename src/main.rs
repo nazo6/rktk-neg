@@ -3,7 +3,6 @@
 #![feature(impl_trait_in_assoc_type)]
 
 use core::panic::PanicInfo;
-use core::ptr::addr_of_mut;
 
 use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice;
 use embassy_executor::Spawner;
@@ -17,7 +16,6 @@ use embassy_nrf::{
     Peripherals,
 };
 use embassy_sync::{blocking_mutex::raw::ThreadModeRawMutex, mutex::Mutex};
-use embedded_alloc::LlffHeap as Heap;
 use once_cell::sync::OnceCell;
 use rktk::{
     drivers::{interface::keyscan::Hand, Drivers},
@@ -48,11 +46,6 @@ mod hooks;
 mod keymap;
 mod misc;
 
-extern crate alloc;
-
-#[global_allocator]
-static HEAP: Heap = Heap::empty();
-
 bind_interrupts!(pub struct Irqs {
     USBD => embassy_nrf::usb::InterruptHandler<USBD>;
     SPIM2_SPIS2_SPI2 => embassy_nrf::spim::InterruptHandler<SPI2>;
@@ -63,13 +56,6 @@ bind_interrupts!(pub struct Irqs {
 static SOFTWARE_VBUS: OnceCell<SoftwareVbusDetect> = OnceCell::new();
 
 fn init() -> Peripherals {
-    {
-        use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 1024;
-        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-        unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
-    }
-
     let p = {
         let config = {
             let mut config = embassy_nrf::config::Config::default();
@@ -216,7 +202,7 @@ async fn main(_spawner: Spawner) {
 
     let hooks = hooks::create_hooks(p.P0_31);
 
-    rktk::task::start(drivers, keymap::KEY_CONFIG, hooks).await;
+    rktk::task::start(drivers, keymap::KEYMAP, hooks).await;
 }
 
 #[panic_handler]
