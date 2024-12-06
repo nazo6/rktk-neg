@@ -3,7 +3,7 @@ use rktk::keymanager::keycode::{
     key::*, layer::*, media::*, modifier::*, mouse::*, special::*, utils::*,
 };
 use rktk::keymap_config::{Keymap, Layer, LayerMap};
-use rktk_keymanager::keymap::TapDanceDefinition;
+use rktk_keymanager::keymap::{ComboDefinition, TapDanceDefinition};
 
 const L2ENTER: KeyAction = KeyAction::TapHold(
     KeyCode::Key(Key::Enter),
@@ -109,6 +109,15 @@ pub const KEYMAP: Keymap = Keymap {
                 Some(KeyCode::Layer(LayerOp::Toggle(4))),
             ],
             hold: [None, None, None, None],
+        }),
+        None,
+        None,
+        None,
+    ],
+    combo: [
+        Some(ComboDefinition {
+            src: [Some(KeyCode::Key(Key::J)), Some(KeyCode::Key(Key::K)), None],
+            dst: KeyCode::Mouse(Mouse::Left),
         }),
         None,
         None,
