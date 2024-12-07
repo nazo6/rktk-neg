@@ -8,7 +8,7 @@ use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice;
 use embassy_executor::Spawner;
 use embassy_nrf::{
     bind_interrupts,
-    gpio::{Input, Output, OutputDrive, Pull},
+    gpio::{Input, Level, Output, OutputDrive, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::{SPI2, USBD},
     twim::Twim,
@@ -183,15 +183,20 @@ async fn main(_spawner: Spawner) {
 
         let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash).await);
 
+        let vcc_cutoff = (
+            Output::new(p.P0_13, Level::High, OutputDrive::Standard),
+            Level::Low,
+        );
+
         Drivers {
             keyscan,
-            system: NrfSystemDriver,
+            system: NrfSystemDriver::new(Some(vcc_cutoff)),
             mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),
             split: none_driver!(Split),
             rgb: Some(rgb),
-            storage: Some(storage),
+            storage: none_driver!(Storage),
             ble_builder,
             debounce: Some(EagerDebounceDriver::new(
                 embassy_time::Duration::from_millis(10),
