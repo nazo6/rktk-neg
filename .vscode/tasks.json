@@ -5,6 +5,16 @@
       "label": "deploy",
       "type": "shell",
       "command": "rktk-cli build -d /mnt/e"
+    },
+    {
+      "label": "deploy-left",
+      "type": "shell",
+      "command": "rktk-cli build -d /mnt/e -- --no-default-features --features left"
+    },
+    {
+      "label": "deploy-slave-left",
+      "type": "shell",
+      "command": "rktk-cli build -d /mnt/e -- --no-default-features --features left --features force-slave"
     }
   ]
 }

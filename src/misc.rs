@@ -6,5 +6,13 @@ pub const PAW3395_CONFIG: paw3395::config::Config = paw3395::config::Config {
 };
 
 pub fn translate_key_position(row: usize, col: usize) -> Option<(usize, usize)> {
-    Some((row, col))
+    #[cfg(feature = "left")]
+    {
+        Some((row, 7 - col))
+    }
+
+    #[cfg(feature = "right")]
+    {
+        Some((row, col))
+    }
 }

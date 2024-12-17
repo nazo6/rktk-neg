@@ -8,6 +8,7 @@ use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice;
 use embassy_executor::Spawner;
 use embassy_nrf::{
     bind_interrupts,
+    buffered_uarte::BufferedUarte,
     gpio::{Input, Level, Output, OutputDrive, Pull},
     interrupt::{self, InterruptExt, Priority},
     peripherals::{SPI2, USBD},
@@ -37,6 +38,7 @@ use rktk_drivers_nrf::{
         ble::{init_ble_server, NrfBleDriverBuilder},
         flash::get_flash,
     },
+    split::uart_full_duplex::UartFullDuplexSplitDriver,
     system::NrfSystemDriver,
 };
 
@@ -108,6 +110,9 @@ async fn main(_spawner: Spawner) {
     embassy_time::Timer::after_millis(50).await;
     let (flash, cache) = get_flash(sd);
 
+    let mut uarte_tx_buffer = [0; 256];
+    let mut uarte_rx_buffer = [0; 256];
+
     let drivers = {
         let display = Ssd1306DisplayBuilder::new(
             Twim::new(
@@ -146,7 +151,16 @@ async fn main(_spawner: Spawner) {
                 Input::new(p.P0_10, Pull::Down), // ROW3
                 Input::new(p.P0_09, Pull::Down), // ROW4
             ],
-            HandDetector::Constant(Hand::Right),
+            HandDetector::Constant({
+                #[cfg(feature = "left")]
+                {
+                    Hand::Left
+                }
+                #[cfg(feature = "right")]
+                {
+                    Hand::Right
+                }
+            }),
             misc::translate_key_position,
         );
 
@@ -179,6 +193,21 @@ async fn main(_spawner: Spawner) {
             Some(CommonUsbDriverBuilder::new(opts))
         };
 
+        let uarte_config = embassy_nrf::uarte::Config::default();
+        let split = UartFullDuplexSplitDriver::new(BufferedUarte::new(
+            p.UARTE0,
+            p.TIMER1,
+            p.PPI_CH0,
+            p.PPI_CH1,
+            p.PPI_GROUP0,
+            Irqs,
+            p.P0_08,
+            p.P0_06,
+            uarte_config,
+            &mut uarte_rx_buffer,
+            &mut uarte_tx_buffer,
+        ));
+
         let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
 
         let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash).await);
@@ -188,13 +217,18 @@ async fn main(_spawner: Spawner) {
             Level::Low,
         );
 
+        #[cfg(feature = "force-slave")]
+        let usb = none_driver!(UsbBuilder);
+        #[cfg(feature = "force-slave")]
+        let ble_builder = none_driver!(BleBuilder);
+
         Drivers {
             keyscan,
             system: NrfSystemDriver::new(Some(vcc_cutoff)),
             mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),
-            split: none_driver!(Split),
+            split: Some(split),
             rgb: Some(rgb),
             storage: none_driver!(Storage),
             ble_builder,
