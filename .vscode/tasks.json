@@ -2,19 +2,24 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "deploy",
+      "label": "deploy-right",
       "type": "shell",
-      "command": "rktk-cli build -d /mnt/e"
+      "command": "rktk-cli build -d auto"
     },
     {
       "label": "deploy-left",
       "type": "shell",
-      "command": "rktk-cli build -d /mnt/e -- --no-default-features --features left"
+      "command": "rktk-cli build -d auto -- --no-default-features --features left"
     },
     {
       "label": "deploy-slave-left",
       "type": "shell",
-      "command": "rktk-cli build -d /mnt/e -- --no-default-features --features left --features force-slave"
+      "command": "rktk-cli build -d auto -- --no-default-features --features left --features force-slave"
+    },
+    {
+      "label": "deploy-slave-right",
+      "type": "shell",
+      "command": "rktk-cli build -d auto -- --no-default-features --features right --features force-slave"
     }
   ]
 }
