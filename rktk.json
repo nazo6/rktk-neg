@@ -227,7 +227,7 @@
   },
   "config": {
     "rktk": {
-      "scan_interval_keyboard": 10,
+      "scan_interval_keyboard": 5,
       "scan_interval_mouse": 5
     }
   }

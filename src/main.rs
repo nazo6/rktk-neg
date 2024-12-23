@@ -208,7 +208,7 @@ async fn main(_spawner: Spawner) {
             &mut uarte_tx_buffer,
         ));
 
-        let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
+        // let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
 
         let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash).await);
 
