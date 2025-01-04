@@ -111,16 +111,17 @@ pub const KEYMAP: Keymap = Keymap {
             hold: [None, None, None, None],
         }),
         None,
-        None,
-        None,
     ],
     combo: [
         Some(ComboDefinition {
-            src: [Some(KeyCode::Key(Key::J)), Some(KeyCode::Key(Key::K)), None],
+            src: [
+                Some(KeyCode::Key(Key::J)),
+                Some(KeyCode::Key(Key::K)),
+                None,
+                None,
+            ],
             dst: KeyCode::Mouse(Mouse::MLeft),
         }),
-        None,
-        None,
         None,
     ],
 };

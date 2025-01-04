@@ -36,7 +36,7 @@ pub struct NegMasterHooks {
 impl MasterHooks for NegMasterHooks {
     async fn on_state_update(
         &mut self,
-        state_report: &mut rktk_keymanager::state::StateReport,
+        state_report: &mut rktk_keymanager::interface::report::StateReport,
     ) -> bool {
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
