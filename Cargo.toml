@@ -11,22 +11,20 @@ mcu = "Nrf52840"
 [dependencies]
 rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
   "ble",
-  # "nightly",
+  "nightly",
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
 rktk-keymanager = { path = "../rktk/lib/rktk-keymanager" }
-
 rktk = { path = "../rktk/lib/rktk" }
 
 embassy-embedded-hal = "0.2.0"
 
-embassy-executor = { version = "0.6.1", features = [
+embassy-executor = { version = "0.6.3", features = [
   "arch-cortex-m",
   "executor-thread",
   "executor-interrupt",
   "integrated-timers",
-  "task-arena-size-65536",
-  # "nightly",
+  "nightly",
 ] }
 embassy-time = { version = "0.3.2" }
 embassy-nrf = { version = "0.2.0", features = [
@@ -34,7 +32,6 @@ embassy-nrf = { version = "0.2.0", features = [
   "time-driver-rtc1",
   "nrf52840",
   "nfc-pins-as-gpio",
-  "unstable-pac",
 ] }
 embassy-sync = { version = "0.6.0" }
 nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-softdevice", features = [
@@ -45,7 +42,7 @@ nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-s
   "nrf52840",
 ] }
 
-cortex-m = { version = "0.7.7", features = ["inline-asm"] }
+cortex-m = { version = "0.7.7" }
 cortex-m-rt = { version = "0.7.3" }
 
 once_cell = { version = "1.19.0", default-features = false, features = [

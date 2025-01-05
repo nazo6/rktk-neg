@@ -1,18 +1,13 @@
 {
   "$schema": "../rktk/lib/rktk/schema.json",
   "keyboard": {
+    "name": "negL",
     "cols": 16,
     "rows": 5,
     "encoder_count": 1,
-
-    "right_led_count": 34,
-    "left_led_count": 37,
-
-    "name": "negL",
+    "right_rgb_count": 34,
+    "left_rgb_count": 37,
     "layout": {
-      "labels": [
-        ["Ball availability", "Right", "Left"]
-      ],
       "keymap": [
         [
           {
@@ -225,10 +220,17 @@
       ]
     }
   },
-  "config": {
-    "rktk": {
-      "scan_interval_keyboard": 5,
-      "scan_interval_mouse": 5
+  "rktk": {
+    "scan_interval_keyboard": 5,
+    "scan_interval_mouse": 5
+  },
+  "key_manager": {
+    "constant": {
+      "combo_key_max_definitions": 1,
+      "combo_key_max_sources": 2,
+      "oneshot_state_size": 5,
+      "tap_dance_max_definitions": 1,
+      "tap_dance_max_repeats": 4
     }
   }
 }

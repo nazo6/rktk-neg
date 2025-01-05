@@ -1,8 +1,9 @@
-use rktk::keymanager::keycode::*;
-use rktk::keymanager::keycode::{
-    key::*, layer::*, media::*, modifier::*, mouse::*, special::*, utils::*,
+use rktk::config::keymap::{
+    key_manager::keycode::{
+        key::*, layer::*, media::*, modifier::*, mouse::*, special::*, utils::*, *,
+    },
+    Keymap, Layer, LayerKeymap,
 };
-use rktk::keymap_config::{Keymap, Layer, LayerMap};
 use rktk_keymanager::keymap::{ComboDefinition, TapDanceDefinition};
 
 const L2ENTER: KeyAction = KeyAction::TapHold(
@@ -26,7 +27,7 @@ const L4GRV: KeyAction = KeyAction::TapHold(
 );
 
 #[rustfmt::skip]
-const L0: LayerMap = [
+const L0: LayerKeymap = [
     [ L4GRV , D1    , D2    , D3    , D4    , D5    , _____ , _____ , /**/ _____ , _____ , D6    , D7    , D8    , D9    , D0    , EQUAL ],
     [  TAB  , Q     , W     , E     , R     , T     , _____ , _____ , /**/ _____ , _____ , Y     , U     , I     , O     , P     , MINUS ],
     [  ESC  , A     , S     , D     , F     , G     , _____ , _____ , /**/ _____ , _____ , H     , J     , K     , L     , SCLN  , QUOTE ],
@@ -36,7 +37,7 @@ const L0: LayerMap = [
 
 #[rustfmt::skip]
 /// Auto mouse layer
-const L1: LayerMap = [
+const L1: LayerKeymap = [
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____,AML_RESET,M_LEFT,MO_SCRL,M_RIGHT, _____ , _____ ],
@@ -46,8 +47,8 @@ const L1: LayerMap = [
 
 #[rustfmt::skip]
 /// Mouse layer
-const L2: LayerMap = [
-    [ _____ , F1    , F2    , F3    , F4    , F5    , _____ ,_____ , /**/ _____ ,_____ , F6    , F7    , F8    , TG(2)  , F10   , F11   ],
+const L2: LayerKeymap = [
+    [ _____ , F1    , F2    , F3    , F4    , F5    , _____ ,_____ , /**/ _____ ,_____ , F6    , F7    , F8    , TG(2) , F10   , F11   ],
     [ _____ , _____ , INSERT, HOME  , PGUP  , _____ , _____ ,_____ , /**/ _____ ,_____ , LEFT  , DOWN  , UP    , RIGHT , _____ , F12   ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____,AML_RESET,M_LEFT,MO_SCRL,M_RIGHT, _____ , VOLUP ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ ,M_BACK,M_MIDDLE,M_FORWARD,_____, VOLDN ],
@@ -56,16 +57,16 @@ const L2: LayerMap = [
 
 const FL_CLR: KeyAction = FLASH_CLEAR;
 #[rustfmt::skip]
-const L3: LayerMap = [
-    [ FL_CLR, _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , OUTPUT_BLE , OUTPUT_USB , _____ , _____ , _____ , _____ ],
+const L3: LayerKeymap = [
+    [ FL_CLR, _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,__ ,OUTPUT_BLE,OUTPUT_USB , __, _____ , _____ , _____ ],
     [ _____ , _____ , KP7   , KP8   , KP9   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D1), SF(D2), SF(D3), SF(D4), SF(D5), _____ ],
     [ _____ , _____ , KP4   , KP5   , KP6   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D6), SF(D7), SF(D8), SF(D9), SF(D0), _____ ],
-    [ _____ , _____ , KP1   , KP2   , KP3   , _____ , _____ ,_____ , /**/ _____ ,_____ , QUOTE,SF(QUOTE),EQUAL,SF(EQUAL), _____ , _____ ],
+    [ _____ , _____ , KP1   , KP2   , KP3   , _____ , _____ ,_____ , /**/ _____ ,_____ , QUOTE,SF(QUOTE),EQUAL,SF(EQUAL), _____, _____ ],
     [ _____ , _____ , KP0   , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
 ];
 
 #[rustfmt::skip]
-const L4: LayerMap = [
+const L4: LayerKeymap = [
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
     [ _____ , _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
@@ -80,48 +81,37 @@ pub const KEYMAP: Keymap = Keymap {
     )],
     layers: [
         Layer {
-            map: L0,
+            keymap: L0,
             arrowmouse: false,
         },
         Layer {
-            map: L1,
+            keymap: L1,
             arrowmouse: false,
         },
         Layer {
-            map: L2,
+            keymap: L2,
             arrowmouse: false,
         },
         Layer {
-            map: L3,
+            keymap: L3,
             arrowmouse: true,
         },
         Layer {
-            map: L4,
+            keymap: L4,
             arrowmouse: true,
         },
     ],
-    tap_dance: [
-        Some(TapDanceDefinition {
-            tap: [
-                Some(KeyCode::Key(Key::RightBracket)),
-                Some(KeyCode::Layer(LayerOp::Toggle(2))),
-                Some(KeyCode::Layer(LayerOp::Toggle(3))),
-                Some(KeyCode::Layer(LayerOp::Toggle(4))),
-            ],
-            hold: [None, None, None, None],
-        }),
-        None,
-    ],
-    combo: [
-        Some(ComboDefinition {
-            src: [
-                Some(KeyCode::Key(Key::J)),
-                Some(KeyCode::Key(Key::K)),
-                None,
-                None,
-            ],
-            dst: KeyCode::Mouse(Mouse::MLeft),
-        }),
-        None,
-    ],
+    tap_dance: [Some(TapDanceDefinition {
+        tap: [
+            Some(KeyCode::Key(Key::RightBracket)),
+            Some(KeyCode::Layer(LayerOp::Toggle(2))),
+            Some(KeyCode::Layer(LayerOp::Toggle(3))),
+            Some(KeyCode::Layer(LayerOp::Toggle(4))),
+        ],
+        hold: [None, None, None, None],
+    })],
+    combo: [Some(ComboDefinition {
+        src: [Some(KeyCode::Key(Key::J)), Some(KeyCode::Key(Key::K))],
+        dst: KeyCode::Mouse(Mouse::MLeft),
+    })],
 };

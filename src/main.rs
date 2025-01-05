@@ -108,7 +108,7 @@ async fn main(_spawner: Spawner) {
 
     rktk_drivers_nrf::softdevice::start_softdevice(sd).await;
     embassy_time::Timer::after_millis(50).await;
-    let (flash, cache) = get_flash(sd);
+    let (flash, _cache) = get_flash(sd);
 
     let mut uarte_tx_buffer = [0; 256];
     let mut uarte_rx_buffer = [0; 256];
