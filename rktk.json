@@ -226,7 +226,7 @@
   },
   "key_manager": {
     "constant": {
-      "combo_key_max_definitions": 1,
+      "combo_key_max_definitions": 0,
       "combo_key_max_sources": 2,
       "oneshot_state_size": 5,
       "tap_dance_max_definitions": 1,
