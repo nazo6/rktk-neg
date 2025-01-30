@@ -12,12 +12,12 @@ const L2ENTER: KeyAction = KeyAction::TapHold(
 );
 
 const L2SPC: KeyAction = KeyAction::TapHold(
-    KeyCode::Key(Key::Enter),
+    KeyCode::Key(Key::Space),
     KeyCode::Layer(LayerOp::Momentary(2)),
 );
 
 const L3SPC: KeyAction = KeyAction::TapHold(
-    KeyCode::Key(Key::Enter),
+    KeyCode::Key(Key::Space),
     KeyCode::Layer(LayerOp::Momentary(3)),
 );
 
@@ -58,11 +58,11 @@ const L2: LayerKeymap = [
 const FL_CLR: KeyAction = FLASH_CLEAR;
 #[rustfmt::skip]
 const L3: LayerKeymap = [
-    [ FL_CLR, _____ , _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,__ ,OUTPUT_BLE,OUTPUT_USB , __, _____ , _____ , _____ ],
-    [ _____ , _____ , KP7   , KP8   , KP9   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D1), SF(D2), SF(D3), SF(D4), SF(D5), _____ ],
-    [ _____ , _____ , KP4   , KP5   , KP6   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D6), SF(D7), SF(D8), SF(D9), SF(D0), _____ ],
-    [ _____ , _____ , KP1   , KP2   , KP3   , _____ , _____ ,_____ , /**/ _____ ,_____ , QUOTE,SF(QUOTE),EQUAL,SF(EQUAL), _____, _____ ],
-    [ _____ , _____ , KP0   , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
+    [ FL_CLR,BLE_BOND_CLEAR, _____ , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,__ ,OUTPUT_BLE,OUTPUT_USB , __, _____ , _____ , _____ ],
+    [ _____ , _____        , KP7   , KP8   , KP9   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D1), SF(D2), SF(D3), SF(D4), SF(D5), _____ ],
+    [ _____ , _____        , KP4   , KP5   , KP6   , _____ , _____ ,_____ , /**/ _____ ,_____ , SF(D6), SF(D7), SF(D8), SF(D9), SF(D0), _____ ],
+    [ _____ , _____        , KP1   , KP2   , KP3   , _____ , _____ ,_____ , /**/ _____ ,_____ , QUOTE,SF(QUOTE),EQUAL,SF(EQUAL), _____, _____ ],
+    [ _____ , _____        , KP0   , _____ , _____ , _____ , _____ ,_____ , /**/ _____ ,_____ , _____ , _____ , _____ , _____ , _____ , _____ ],
 ];
 
 #[rustfmt::skip]
