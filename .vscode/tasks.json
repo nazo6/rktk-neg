@@ -12,14 +12,14 @@
       "command": "rktk-cli build -d auto -- --no-default-features --features left"
     },
     {
-      "label": "deploy-slave-left",
+      "label": "deploy-ble-left-slave",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --no-default-features --features left --features force-slave"
+      "command": "rktk-cli build -d auto -- --no-default-features --features left,ble-split-slave"
     },
     {
-      "label": "deploy-slave-right",
+      "label": "deploy-ble-right-master",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --no-default-features --features right --features force-slave"
+      "command": "rktk-cli build -d auto -- --no-default-features --features right,ble-split-master"
     }
   ]
 }
