@@ -84,7 +84,7 @@ fn init() -> Peripherals {
 
     {
         use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 1024;
+        const HEAP_SIZE: usize = 32768;
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(&raw mut HEAP_MEM as usize, HEAP_SIZE) }
     }
@@ -262,7 +262,7 @@ async fn main(_spawner: Spawner) {
         Drivers {
             keyscan,
             system: NrfSystemDriver::new(Some(vcc_cutoff)),
-            mouse_builder: none_driver!(MouseBuilder),
+            mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),
             split: Some(split),
