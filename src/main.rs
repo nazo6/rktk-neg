@@ -37,6 +37,7 @@ use rktk_drivers_nrf::{
     softdevice::{
         ble::{init_ble_server, NrfBleDriverBuilder},
         flash::get_flash,
+        init_softdevice,
     },
     split::uart_full_duplex::UartFullDuplexSplitDriver,
     system::NrfSystemDriver,
@@ -83,7 +84,9 @@ async fn main(_spawner: Spawner) {
     let p = init();
 
     // init and start softdevice
-    let sd = rktk_drivers_nrf::softdevice::init_sd("negL");
+    let sd = init_softdevice("negL");
+
+    #[cfg(not(feature = "ble-split-slave"))]
     let server = init_ble_server(
         sd,
         rktk_drivers_nrf::softdevice::ble::DeviceInformation {
@@ -92,8 +95,51 @@ async fn main(_spawner: Spawner) {
             serial_number: Some("100"),
             ..Default::default()
         },
-    )
-    .await;
+    );
+
+    let (flash, _cache) = get_flash(sd);
+
+    #[cfg(not(feature = "ble-split-slave"))]
+    let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash));
+    #[cfg(feature = "ble-split-slave")]
+    let ble_builder = none_driver!(BleBuilder);
+
+    rktk_drivers_nrf::softdevice::start_softdevice(sd).await;
+    embassy_time::Timer::after_millis(200).await;
+
+    #[cfg(feature = "ble-split-master")]
+    let split =
+        rktk_drivers_nrf::softdevice::split::central::SoftdeviceBleCentralSplitDriver::new(sd)
+            .await;
+
+    #[cfg(feature = "ble-split-slave")]
+    let split =
+        rktk_drivers_nrf::softdevice::split::peripheral::SoftdeviceBlePeripheralSplitDriver::new(
+            sd,
+        )
+        .await;
+
+    #[cfg(not(any(feature = "ble-split-slave", feature = "ble-split-master")))]
+    let mut uarte_tx_buffer = [0; 256];
+    #[cfg(not(any(feature = "ble-split-slave", feature = "ble-split-master")))]
+    let mut uarte_rx_buffer = [0; 256];
+    #[cfg(not(any(feature = "ble-split-slave", feature = "ble-split-master")))]
+    let split = {
+        let uarte_config = embassy_nrf::uarte::Config::default();
+        UartFullDuplexSplitDriver::new(BufferedUarte::new(
+            p.UARTE0,
+            p.TIMER1,
+            p.PPI_CH0,
+            p.PPI_CH1,
+            p.PPI_GROUP0,
+            Irqs,
+            p.P0_08,
+            p.P0_06,
+            uarte_config,
+            &mut uarte_rx_buffer,
+            &mut uarte_tx_buffer,
+        ))
+    };
 
     // create shared SPI bus
     let shared_spi = {
@@ -105,13 +151,6 @@ async fn main(_spawner: Spawner) {
             p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
         ))
     };
-
-    rktk_drivers_nrf::softdevice::start_softdevice(sd).await;
-    embassy_time::Timer::after_millis(50).await;
-    let (flash, _cache) = get_flash(sd);
-
-    let mut uarte_tx_buffer = [0; 256];
-    let mut uarte_rx_buffer = [0; 256];
 
     let drivers = {
         let display = Ssd1306DisplayBuilder::new(
@@ -162,6 +201,7 @@ async fn main(_spawner: Spawner) {
                 }
             }),
             misc::translate_key_position,
+            None,
         );
 
         let encoder = GeneralEncoder::new([(
@@ -193,34 +233,12 @@ async fn main(_spawner: Spawner) {
             Some(CommonUsbDriverBuilder::new(opts))
         };
 
-        let uarte_config = embassy_nrf::uarte::Config::default();
-        let split = UartFullDuplexSplitDriver::new(BufferedUarte::new(
-            p.UARTE0,
-            p.TIMER1,
-            p.PPI_CH0,
-            p.PPI_CH1,
-            p.PPI_GROUP0,
-            Irqs,
-            p.P0_08,
-            p.P0_06,
-            uarte_config,
-            &mut uarte_rx_buffer,
-            &mut uarte_tx_buffer,
-        ));
-
         // let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
-
-        let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash).await);
 
         let vcc_cutoff = (
             Output::new(p.P0_13, Level::High, OutputDrive::Standard),
             Level::Low,
         );
-
-        #[cfg(feature = "force-slave")]
-        let usb = none_driver!(UsbBuilder);
-        #[cfg(feature = "force-slave")]
-        let ble_builder = none_driver!(BleBuilder);
 
         Drivers {
             keyscan,

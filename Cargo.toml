@@ -33,8 +33,6 @@ embassy-nrf = { version = "0.3.0", features = [
 ] }
 embassy-sync = { version = "0.6.0" }
 nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-softdevice", features = [
-  "ble-peripheral",
-  "ble-central",
   "critical-section-impl",
   "s140",
   "nrf52840",
@@ -52,4 +50,5 @@ ssd1306 = { version = "0.9.0" }
 default = ["right"]
 right = []
 left = []
-force-slave = []
+ble-split-master = []
+ble-split-slave = []
