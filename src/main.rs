@@ -119,11 +119,11 @@ async fn main(_spawner: Spawner) {
         )
         .await;
 
-    #[cfg(not(any(feature = "ble-split-slave", feature = "ble-split-master")))]
+    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let mut uarte_tx_buffer = [0; 256];
-    #[cfg(not(any(feature = "ble-split-slave", feature = "ble-split-master")))]
+    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let mut uarte_rx_buffer = [0; 256];
-    #[cfg(not(any(feature = "ble-split-slave", feature = "ble-split-master")))]
+    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let split = {
         let uarte_config = embassy_nrf::uarte::Config::default();
         UartFullDuplexSplitDriver::new(BufferedUarte::new(
