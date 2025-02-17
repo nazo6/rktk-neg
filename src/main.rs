@@ -83,6 +83,18 @@ fn init() -> Peripherals {
 async fn main(_spawner: Spawner) {
     let p = init();
 
+    // create shared SPI bus
+    // NOTE: This must be done as soon as possible, otherwise the SPI device will start acting strangely.
+    let shared_spi = {
+        let mut spi_config = paw3395::recommended_spi_config();
+        spi_config.sck_drive = OutputDrive::Standard;
+        spi_config.mosi_drive = OutputDrive::Standard;
+        spi_config.frequency = embassy_nrf::spim::Frequency::K250;
+        Mutex::<ThreadModeRawMutex, _>::new(embassy_nrf::spim::Spim::new(
+            p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
+        ))
+    };
+
     // init and start softdevice
     let sd = init_softdevice("negL");
 
@@ -138,17 +150,6 @@ async fn main(_spawner: Spawner) {
             uarte_config,
             &mut uarte_rx_buffer,
             &mut uarte_tx_buffer,
-        ))
-    };
-
-    // create shared SPI bus
-    let shared_spi = {
-        let mut spi_config = paw3395::recommended_spi_config();
-        spi_config.sck_drive = OutputDrive::Standard;
-        spi_config.mosi_drive = OutputDrive::Standard;
-        spi_config.frequency = embassy_nrf::spim::Frequency::K250;
-        Mutex::<ThreadModeRawMutex, _>::new(embassy_nrf::spim::Spim::new(
-            p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
         ))
     };
 
@@ -232,6 +233,11 @@ async fn main(_spawner: Spawner) {
             };
             Some(CommonUsbDriverBuilder::new(opts))
         };
+
+        #[cfg(feature = "force-slave")]
+        let usb = none_driver!(UsbBuilder);
+        #[cfg(feature = "force-slave")]
+        let ble_builder = none_driver!(BleBuilder);
 
         // let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
 
