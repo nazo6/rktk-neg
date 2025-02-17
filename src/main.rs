@@ -2,6 +2,12 @@
 #![no_main]
 #![feature(impl_trait_in_assoc_type)]
 
+extern crate alloc;
+use embedded_alloc::LlffHeap as Heap;
+
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
+
 use core::panic::PanicInfo;
 
 use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice;
@@ -75,6 +81,13 @@ fn init() -> Peripherals {
     interrupt::SPI2.set_priority(Priority::P2);
     interrupt::SPIM3.set_priority(Priority::P2);
     interrupt::UARTE0.set_priority(Priority::P2);
+
+    {
+        use core::mem::MaybeUninit;
+        const HEAP_SIZE: usize = 1024;
+        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+        unsafe { HEAP.init(&raw mut HEAP_MEM as usize, HEAP_SIZE) }
+    }
 
     p
 }
@@ -249,7 +262,7 @@ async fn main(_spawner: Spawner) {
         Drivers {
             keyscan,
             system: NrfSystemDriver::new(Some(vcc_cutoff)),
-            mouse_builder: Some(ball),
+            mouse_builder: none_driver!(MouseBuilder),
             usb_builder: usb,
             display_builder: Some(display),
             split: Some(split),

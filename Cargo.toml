@@ -15,7 +15,7 @@ rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
 rktk-keymanager = { path = "../rktk/lib/rktk-keymanager" }
-rktk = { path = "../rktk/lib/rktk" }
+rktk = { path = "../rktk/lib/rktk", features = ["alloc"] }
 
 embassy-embedded-hal = "0.3.0"
 embassy-time = "0.4.0"
@@ -45,6 +45,7 @@ once_cell = { version = "1.19.0", default-features = false, features = [
   "atomic-polyfill",
 ] }
 ssd1306 = { version = "0.9.0" }
+embedded-alloc = "0.6.0"
 
 [features]
 default = ["right"]
