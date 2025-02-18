@@ -941,6 +941,7 @@ dependencies = [
  "rktk-drivers-nrf",
  "rktk-keymanager",
  "ssd1306",
+ "static_cell",
 ]
 
 [[package]]
@@ -1178,6 +1179,7 @@ dependencies = [
  "smart-default",
  "smart-leds",
  "ssmarshal",
+ "static_cell",
  "usbd-hid",
 ]
 
@@ -1201,7 +1203,6 @@ dependencies = [
  "rktk",
  "sequential-storage",
  "ssd1306",
- "static_cell",
  "thiserror",
  "usbd-hid",
 ]

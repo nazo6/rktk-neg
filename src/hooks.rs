@@ -12,9 +12,9 @@ use rktk::{
     },
 };
 
-pub fn create_hooks<'d>(
-    led_off_pin: impl Peripheral<P = impl Pin> + 'd,
-) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks<'d>> {
+pub fn create_hooks(
+    led_off_pin: impl Peripheral<P = impl Pin> + 'static,
+) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
     Hooks {
         common: EmptyCommonHooks,
         master: NegMasterHooks { latest_led: None },
@@ -60,11 +60,11 @@ impl MasterHooks for NegMasterHooks {
     }
 }
 
-pub struct NegRgbHooks<'d> {
-    pub led_off: Output<'d>,
+pub struct NegRgbHooks {
+    pub led_off: Output<'static>,
 }
 
-impl RgbHooks for NegRgbHooks<'_> {
+impl RgbHooks for NegRgbHooks {
     async fn on_rgb_init(&mut self, _driver: &mut impl RgbDriver) {
         self.led_off.set_high();
     }

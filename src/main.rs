@@ -26,7 +26,7 @@ use embassy_sync::{blocking_mutex::raw::ThreadModeRawMutex, mutex::Mutex};
 use once_cell::sync::OnceCell;
 use rktk::{
     drivers::{interface::keyscan::Hand, Drivers},
-    none_driver,
+    none_driver, singleton,
 };
 use rktk_drivers_common::{
     debounce::EagerDebounceDriver,
@@ -145,10 +145,6 @@ async fn main(_spawner: Spawner) {
         .await;
 
     #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
-    let mut uarte_tx_buffer = [0; 256];
-    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
-    let mut uarte_rx_buffer = [0; 256];
-    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let split = {
         let uarte_config = embassy_nrf::uarte::Config::default();
         UartFullDuplexSplitDriver::new(BufferedUarte::new(
@@ -161,8 +157,8 @@ async fn main(_spawner: Spawner) {
             p.P0_08,
             p.P0_06,
             uarte_config,
-            &mut uarte_rx_buffer,
-            &mut uarte_tx_buffer,
+            singleton!([0; 256], [u8; 256]),
+            singleton!([0; 256], [u8; 256]),
         ))
     };
 
