@@ -103,6 +103,7 @@ async fn main(_spawner: Spawner) {
         spi_config.sck_drive = OutputDrive::Standard;
         spi_config.mosi_drive = OutputDrive::Standard;
         spi_config.frequency = embassy_nrf::spim::Frequency::K250;
+
         Mutex::<ThreadModeRawMutex, _>::new(embassy_nrf::spim::Spim::new(
             p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
         ))

@@ -4,27 +4,27 @@
     {
       "label": "deploy-right",
       "type": "shell",
-      "command": "rktk-cli build -d auto"
+      "command": "rktk-cli build -d auto -- --features right"
     },
     {
       "label": "deploy-left",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --no-default-features --features left"
+      "command": "rktk-cli build -d auto -- --features left"
     },
     {
       "label": "deploy-left-slave",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --no-default-features --features left,force-slave"
+      "command": "rktk-cli build -d auto -- --features left,force-slave"
     },
     {
       "label": "deploy-ble-left-slave",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --no-default-features --features left,ble-split-slave"
+      "command": "rktk-cli build -d auto -- --features left,ble-split-slave"
     },
     {
       "label": "deploy-ble-right-master",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --no-default-features --features right,ble-split-master"
+      "command": "rktk-cli build -d auto -- --features right,ble-split-master"
     }
   ]
 }
