@@ -20,7 +20,7 @@ use embassy_nrf::{
     buffered_uarte::BufferedUarte,
     gpio::{Input, Level, Output, OutputDrive, Pull},
     interrupt::{self, InterruptExt, Priority},
-    peripherals::{SPI2, USBD},
+    peripherals::{RNG, SPI2, USBD},
     twim::Twim,
     usb::vbus_detect::SoftwareVbusDetect,
     Peripherals,
@@ -32,6 +32,7 @@ use rktk::{
     none_driver, singleton,
 };
 use rktk_drivers_common::{
+    ble::reporter::TroubleReporterBuilder,
     debounce::EagerDebounceDriver,
     display::ssd1306::Ssd1306DisplayBuilder,
     encoder::GeneralEncoder,
@@ -41,18 +42,9 @@ use rktk_drivers_common::{
     usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
 };
 use rktk_drivers_nrf::{
-    mouse::paw3395,
-    rgb::ws2812_pwm::Ws2812Pwm,
-    softdevice::{
-        ble::{init_ble_server, NrfBleDriverBuilder},
-        flash::get_flash,
-        init_softdevice,
-    },
-    split::uart_full_duplex::UartFullDuplexSplitDriver,
-    system::NrfSystemDriver,
+    init_sdc, mouse::paw3395, rgb::ws2812_pwm::Ws2812Pwm,
+    split::uart_full_duplex::UartFullDuplexSplitDriver, system::NrfSystemDriver,
 };
-
-use nrf_softdevice as _;
 
 mod hooks;
 mod keymap;
@@ -63,6 +55,13 @@ bind_interrupts!(pub struct Irqs {
     SPI2 => embassy_nrf::spim::InterruptHandler<SPI2>;
     TWISPI0 => embassy_nrf::twim::InterruptHandler<embassy_nrf::peripherals::TWISPI0>;
     UARTE0 => embassy_nrf::buffered_uarte::InterruptHandler<embassy_nrf::peripherals::UARTE0>;
+
+    RNG => embassy_nrf::rng::InterruptHandler<RNG>;
+    EGU0_SWI0 => nrf_sdc::mpsl::LowPrioInterruptHandler;
+    CLOCK_POWER => nrf_sdc::mpsl::ClockInterruptHandler;
+    RADIO => nrf_sdc::mpsl::HighPrioInterruptHandler;
+    TIMER0 => nrf_sdc::mpsl::HighPrioInterruptHandler;
+    RTC0 => nrf_sdc::mpsl::HighPrioInterruptHandler;
 });
 
 static SOFTWARE_VBUS: OnceCell<SoftwareVbusDetect> = OnceCell::new();
@@ -96,9 +95,42 @@ fn init() -> Peripherals {
     p
 }
 
+const L2CAP_TXQ: u8 = 3;
+const L2CAP_RXQ: u8 = 3;
+const L2CAP_MTU: usize = 27;
+
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = init();
+
+    let rng = rktk::singleton!(
+        embassy_nrf::rng::Rng::new(p.RNG, Irqs),
+        embassy_nrf::rng::Rng<RNG>
+    );
+
+    init_sdc!(
+        sdc,
+        Irqs,
+        rng,
+        mpsl: (p.RTC0, p.TIMER0, p.TEMP, p.PPI_CH19, p.PPI_CH30, p.PPI_CH31),
+        sdc: (
+            p.PPI_CH17, p.PPI_CH18, p.PPI_CH20, p.PPI_CH21, p.PPI_CH22, p.PPI_CH23, p.PPI_CH24, p.PPI_CH25, p.PPI_CH26,
+            p.PPI_CH27, p.PPI_CH28, p.PPI_CH29
+        ),
+        mtu: L2CAP_MTU as u8, txq: L2CAP_TXQ, rxq: L2CAP_RXQ
+    );
+
+    let ble_builder = match sdc {
+        Ok(sdc) => {
+            let reporter = TroubleReporterBuilder::<_, 1, 8, L2CAP_MTU>::new(sdc);
+            rktk::print!("SDC init success");
+            Some(reporter)
+        }
+        Err(e) => {
+            rktk::print!("Failed to initialize SDC: {}", e);
+            None
+        }
+    };
 
     // create shared SPI bus
     // NOTE: This must be done as soon as possible, otherwise the SPI device will start acting strangely.
@@ -113,43 +145,6 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
-    // init and start softdevice
-    let sd = init_softdevice("negL");
-
-    #[cfg(not(feature = "ble-split-slave"))]
-    let server = init_ble_server(
-        sd,
-        rktk_drivers_nrf::softdevice::ble::DeviceInformation {
-            manufacturer_name: Some("nazo6"),
-            model_number: Some("100"),
-            serial_number: Some("100"),
-            ..Default::default()
-        },
-    );
-
-    let (flash, _cache) = get_flash(sd);
-
-    #[cfg(not(feature = "ble-split-slave"))]
-    let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash));
-    #[cfg(feature = "ble-split-slave")]
-    let ble_builder = none_driver!(BleBuilder);
-
-    rktk_drivers_nrf::softdevice::start_softdevice(sd).await;
-    embassy_time::Timer::after_millis(200).await;
-
-    #[cfg(feature = "ble-split-master")]
-    let split =
-        rktk_drivers_nrf::softdevice::split::central::SoftdeviceBleCentralSplitDriver::new(sd)
-            .await;
-
-    #[cfg(feature = "ble-split-slave")]
-    let split =
-        rktk_drivers_nrf::softdevice::split::peripheral::SoftdeviceBlePeripheralSplitDriver::new(
-            sd,
-        )
-        .await;
-
-    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let split = {
         let uarte_config = embassy_nrf::uarte::Config::default();
         UartFullDuplexSplitDriver::new(BufferedUarte::new(
@@ -205,16 +200,7 @@ async fn main(_spawner: Spawner) {
                 Input::new(p.P0_10, Pull::Down), // ROW3
                 Input::new(p.P0_09, Pull::Down), // ROW4
             ],
-            HandDetector::Constant({
-                #[cfg(feature = "left")]
-                {
-                    Hand::Left
-                }
-                #[cfg(feature = "right")]
-                {
-                    Hand::Right
-                }
-            }),
+            HandDetector::Constant(Hand::Right),
             misc::translate_key_position,
             None,
         );
@@ -247,11 +233,6 @@ async fn main(_spawner: Spawner) {
             };
             Some(CommonUsbDriverBuilder::new(opts))
         };
-
-        #[cfg(feature = "force-slave")]
-        let usb = none_driver!(UsbBuilder);
-        #[cfg(feature = "force-slave")]
-        let ble_builder = none_driver!(BleBuilder);
 
         // let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
 

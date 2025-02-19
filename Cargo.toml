@@ -10,10 +10,11 @@ mcu = "Nrf52840"
 
 [dependencies]
 rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
-  "ble",
   "nightly",
 ] }
-rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
+rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common", features = [
+  "trouble-ble",
+] }
 rktk-keymanager = { path = "../rktk/lib/rktk-keymanager" }
 rktk = { path = "../rktk/lib/rktk" }
 rktk-log = { path = "../rktk/lib/rktk-log" }
@@ -33,11 +34,6 @@ embassy-nrf = { version = "0.3.0", features = [
   "nfc-pins-as-gpio",
 ] }
 embassy-sync = { version = "0.6.0" }
-nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-softdevice", features = [
-  "critical-section-impl",
-  "s140",
-  "nrf52840",
-] }
 
 cortex-m = { version = "0.7.7" }
 cortex-m-rt = { version = "0.7.3" }
@@ -51,15 +47,16 @@ static_cell = "2.1.0"
 log = { version = "0.4.25", optional = true }
 defmt = { version = "0.3.10", optional = true }
 
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", version = "0.1.0", default-features = false, optional = true }
+
 [features]
-default = ["defmt", "log", "alloc"]
+default = ["defmt", "log", "sdc"]
+
+sdc = ["rktk-drivers-nrf/sdc", "dep:nrf-sdc", "nrf-sdc/nrf52840"]
 
 alloc = ["dep:embedded-alloc", "rktk/alloc"]
 right = []
 left = []
-ble-split-master = []
-ble-split-slave = []
-force-slave = []
 
 defmt = [
   "dep:defmt",
