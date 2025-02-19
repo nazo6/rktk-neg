@@ -2,9 +2,12 @@
 #![no_main]
 #![feature(impl_trait_in_assoc_type)]
 
+#[cfg(feature = "alloc")]
 extern crate alloc;
+#[cfg(feature = "alloc")]
 use embedded_alloc::LlffHeap as Heap;
 
+#[cfg(feature = "alloc")]
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
 
@@ -82,9 +85,10 @@ fn init() -> Peripherals {
     interrupt::SPIM3.set_priority(Priority::P2);
     interrupt::UARTE0.set_priority(Priority::P2);
 
+    #[cfg(feature = "alloc")]
     {
         use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 32768;
+        const HEAP_SIZE: usize = 16384;
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(&raw mut HEAP_MEM as usize, HEAP_SIZE) }
     }
