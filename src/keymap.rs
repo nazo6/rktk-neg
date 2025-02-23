@@ -1,8 +1,8 @@
 use rktk::config::keymap::{
-    key_manager::keycode::{
+    keymanager::keycode::{
         key::*, layer::*, media::*, modifier::*, mouse::*, special::*, utils::*, *,
     },
-    Keymap, LayerKeymap,
+    Keymap, Layer, LayerKeymap,
 };
 use rktk_keymanager::keymap::TapDanceDefinition;
 
@@ -79,7 +79,28 @@ pub const KEYMAP: Keymap = Keymap {
         KeyCode::Media(Media::VolumeIncrement),
         KeyCode::Media(Media::VolumeDecrement),
     )],
-    layers: [L0, L1, L2, L3, L4],
+    layers: [
+        Layer {
+            keymap: L0,
+            arrow_mouse: false,
+        },
+        Layer {
+            keymap: L1,
+            arrow_mouse: false,
+        },
+        Layer {
+            keymap: L2,
+            arrow_mouse: false,
+        },
+        Layer {
+            keymap: L3,
+            arrow_mouse: true,
+        },
+        Layer {
+            keymap: L4,
+            arrow_mouse: true,
+        },
+    ],
     tap_dance: [Some(TapDanceDefinition {
         tap: [
             Some(KeyCode::Key(Key::RightBracket)),
@@ -89,5 +110,5 @@ pub const KEYMAP: Keymap = Keymap {
         ],
         hold: [None, None, None, None],
     })],
-    ..Keymap::const_default()
+    combo: [],
 };

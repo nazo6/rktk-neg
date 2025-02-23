@@ -52,7 +52,7 @@ log = { version = "0.4.25", optional = true }
 defmt = { version = "0.3.10", optional = true }
 
 [features]
-default = ["defmt", "log", "alloc"]
+default = ["defmt", "alloc"]
 
 alloc = ["dep:embedded-alloc", "rktk/alloc"]
 right = []
@@ -66,6 +66,7 @@ defmt = [
   "rktk/defmt",
   "rktk-log/defmt",
   "rktk-drivers-common/defmtusb",
+  "rktk-drivers-common/defmt-timestamp",
   "rktk-drivers-nrf/defmt",
 ]
 log = [

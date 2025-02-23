@@ -244,6 +244,7 @@ async fn main(_spawner: Spawner) {
                 mouse_poll_interval: 1,
                 kb_poll_interval: 5,
                 driver,
+                defmt_usb_use_dtr: true,
             };
             Some(CommonUsbDriverBuilder::new(opts))
         };
@@ -272,6 +273,7 @@ async fn main(_spawner: Spawner) {
             ble_builder,
             debounce: Some(EagerDebounceDriver::new(
                 embassy_time::Duration::from_millis(10),
+                true,
             )),
             encoder: Some(encoder),
         }
