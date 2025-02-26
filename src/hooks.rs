@@ -14,10 +14,14 @@ use rktk::{
 
 pub fn create_hooks(
     led_off_pin: impl Peripheral<P = impl Pin> + 'static,
+    ptx: embassy_nrf_esb::ptx::PtxRadio<'static, embassy_nrf::peripherals::RADIO, 64>,
 ) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
     Hooks {
         common: EmptyCommonHooks,
-        master: NegMasterHooks { latest_led: None },
+        master: NegMasterHooks {
+            latest_led: None,
+            ptx,
+        },
         slave: EmptySlaveHooks,
         rgb: NegRgbHooks {
             led_off: embassy_nrf::gpio::Output::new(
@@ -31,12 +35,42 @@ pub fn create_hooks(
 
 pub struct NegMasterHooks {
     latest_led: Option<RgbCommand>,
+    ptx: embassy_nrf_esb::ptx::PtxRadio<'static, embassy_nrf::peripherals::RADIO, 64>,
 }
 
 impl MasterHooks for NegMasterHooks {
+    async fn on_keyboard_event(
+        &mut self,
+        event: &mut rktk::drivers::interface::keyscan::KeyChangeEvent,
+    ) -> bool {
+        // if event.col == 3 && event.row == 0 {
+        //     if event.pressed {
+        //         let res = self.ptx.send(0, &[0, 0, 0, 0], false).await;
+        //         rktk::print!("ptxp:{:?},{:?}", res, embassy_time::Instant::now());
+        //     } else {
+        //         let res = self.ptx.send(0, &[1, 1, 1, 1], false).await;
+        //         rktk::print!("ptxr:{:?},{:?}", res, embassy_time::Instant::now());
+        //     }
+        //     return false;
+        // }
+
+        true
+    }
+
+    async fn on_mouse_event(&mut self, mouse_move: &mut (i8, i8)) -> bool {
+        if *mouse_move != (0, 0) {
+            self.ptx
+                .send(0, &[mouse_move.0 as u8, mouse_move.1 as u8], false)
+                .await;
+        }
+        true
+    }
+
     async fn on_state_update(
         &mut self,
         state_report: &mut rktk_keymanager::interface::report::StateReport,
+        _usb_reporter: &Option<impl rktk::drivers::interface::reporter::ReporterDriver>,
+        _ble_reporter: &Option<impl rktk::drivers::interface::reporter::ReporterDriver>,
     ) -> bool {
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),

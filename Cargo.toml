@@ -9,8 +9,7 @@ edition = "2021"
 mcu = "Nrf52840"
 
 [dependencies]
-rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
-  "ble",
+rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", default-features = false, features = [
   "nightly",
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
@@ -33,13 +32,12 @@ embassy-nrf = { version = "0.3.0", features = [
   "nfc-pins-as-gpio",
 ] }
 embassy-sync = { version = "0.6.0" }
-nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-softdevice", features = [
-  "critical-section-impl",
-  "s140",
-  "nrf52840",
+
+embassy-nrf-esb = { path = "../../../lib/embassy-nrf-esb", features = [
+  "fast-ru",
 ] }
 
-cortex-m = { version = "0.7.7" }
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = { version = "0.7.3" }
 
 once_cell = { version = "1.19.0", default-features = false, features = [
@@ -68,6 +66,7 @@ defmt = [
   "rktk-drivers-common/defmtusb",
   "rktk-drivers-common/defmt-timestamp",
   "rktk-drivers-nrf/defmt",
+  "embassy-nrf-esb/defmt",
 ]
 log = [
   "dep:log",

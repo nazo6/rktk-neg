@@ -41,18 +41,9 @@ use rktk_drivers_common::{
     usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
 };
 use rktk_drivers_nrf::{
-    mouse::paw3395,
-    rgb::ws2812_pwm::Ws2812Pwm,
-    softdevice::{
-        ble::{init_ble_server, NrfBleDriverBuilder},
-        flash::get_flash,
-        init_softdevice,
-    },
-    split::uart_full_duplex::UartFullDuplexSplitDriver,
+    mouse::paw3395, rgb::ws2812_pwm::Ws2812Pwm, split::uart_full_duplex::UartFullDuplexSplitDriver,
     system::NrfSystemDriver,
 };
-
-use nrf_softdevice as _;
 
 mod hooks;
 mod keymap;
@@ -63,6 +54,7 @@ bind_interrupts!(pub struct Irqs {
     SPI2 => embassy_nrf::spim::InterruptHandler<SPI2>;
     TWISPI0 => embassy_nrf::twim::InterruptHandler<embassy_nrf::peripherals::TWISPI0>;
     UARTE0 => embassy_nrf::buffered_uarte::InterruptHandler<embassy_nrf::peripherals::UARTE0>;
+    RADIO => embassy_nrf_esb::InterruptHandler<embassy_nrf::peripherals::RADIO>;
 });
 
 static SOFTWARE_VBUS: OnceCell<SoftwareVbusDetect> = OnceCell::new();
@@ -113,41 +105,19 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
-    // init and start softdevice
-    let sd = init_softdevice("negL");
+    let mut ptx = embassy_nrf_esb::ptx::PtxRadio::<'_, _, 64>::new(
+        p.RADIO,
+        Irqs,
+        embassy_nrf_esb::RadioConfig::default(),
+        embassy_nrf_esb::ptx::PtxConfig::default(),
+    )
+    .unwrap();
 
-    #[cfg(not(feature = "ble-split-slave"))]
-    let server = init_ble_server(
-        sd,
-        rktk_drivers_nrf::softdevice::ble::DeviceInformation {
-            manufacturer_name: Some("nazo6"),
-            model_number: Some("100"),
-            serial_number: Some("100"),
-            ..Default::default()
-        },
-    );
+    rktk::print!("ptx");
 
-    let (flash, _cache) = get_flash(sd);
-
-    #[cfg(not(feature = "ble-split-slave"))]
-    let ble_builder = Some(NrfBleDriverBuilder::new(sd, server, "negL", flash));
-    #[cfg(feature = "ble-split-slave")]
     let ble_builder = none_driver!(BleBuilder);
 
-    rktk_drivers_nrf::softdevice::start_softdevice(sd).await;
     embassy_time::Timer::after_millis(200).await;
-
-    #[cfg(feature = "ble-split-master")]
-    let split =
-        rktk_drivers_nrf::softdevice::split::central::SoftdeviceBleCentralSplitDriver::new(sd)
-            .await;
-
-    #[cfg(feature = "ble-split-slave")]
-    let split =
-        rktk_drivers_nrf::softdevice::split::peripheral::SoftdeviceBlePeripheralSplitDriver::new(
-            sd,
-        )
-        .await;
 
     #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let split = {
@@ -279,7 +249,7 @@ async fn main(_spawner: Spawner) {
         }
     };
 
-    let hooks = hooks::create_hooks(p.P0_31);
+    let hooks = hooks::create_hooks(p.P0_31, ptx);
 
     rktk::task::start(drivers, keymap::KEYMAP, hooks).await;
 }
