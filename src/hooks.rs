@@ -3,7 +3,10 @@ use embassy_nrf::{
     Peripheral,
 };
 use rktk::{
-    drivers::interface::rgb::{RgbCommand, RgbDriver, RgbMode},
+    drivers::interface::{
+        dongle::DongleData,
+        rgb::{RgbCommand, RgbDriver, RgbMode},
+    },
     hooks::{
         channels::rgb_sender,
         empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
@@ -39,33 +42,6 @@ pub struct NegMasterHooks {
 }
 
 impl MasterHooks for NegMasterHooks {
-    async fn on_keyboard_event(
-        &mut self,
-        event: &mut rktk::drivers::interface::keyscan::KeyChangeEvent,
-    ) -> bool {
-        // if event.col == 3 && event.row == 0 {
-        //     if event.pressed {
-        //         let res = self.ptx.send(0, &[0, 0, 0, 0], false).await;
-        //         rktk::print!("ptxp:{:?},{:?}", res, embassy_time::Instant::now());
-        //     } else {
-        //         let res = self.ptx.send(0, &[1, 1, 1, 1], false).await;
-        //         rktk::print!("ptxr:{:?},{:?}", res, embassy_time::Instant::now());
-        //     }
-        //     return false;
-        // }
-
-        true
-    }
-
-    async fn on_mouse_event(&mut self, mouse_move: &mut (i8, i8)) -> bool {
-        if *mouse_move != (0, 0) {
-            self.ptx
-                .send(0, &[mouse_move.0 as u8, mouse_move.1 as u8], false)
-                .await;
-        }
-        true
-    }
-
     async fn on_state_update(
         &mut self,
         state_report: &mut rktk_keymanager::interface::report::StateReport,
@@ -79,6 +55,18 @@ impl MasterHooks for NegMasterHooks {
             4 => RgbCommand::Start(RgbMode::SolidColor(10, 10, 0)),
             _ => RgbCommand::Reset,
         };
+        if let Some(k) = state_report.keyboard_report {
+            let mut buf = [0; 64];
+            if let Ok(s) = postcard::to_slice(&DongleData::Keyboard(k.into()), &mut buf) {
+                self.ptx.send(0, s, false).await;
+            }
+        }
+        if let Some(m) = state_report.mouse_report {
+            let mut buf = [0; 64];
+            if let Ok(s) = postcard::to_slice(&DongleData::Mouse(m.into()), &mut buf) {
+                self.ptx.send(0, s, false).await;
+            }
+        }
 
         if let Some(latest_led) = &self.latest_led {
             if led != *latest_led {

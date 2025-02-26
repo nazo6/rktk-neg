@@ -48,6 +48,7 @@ embedded-alloc = { version = "0.6.0", optional = true }
 static_cell = "2.1.0"
 log = { version = "0.4.25", optional = true }
 defmt = { version = "0.3.10", optional = true }
+postcard = "1.1.1"
 
 [features]
 default = ["defmt", "alloc"]
