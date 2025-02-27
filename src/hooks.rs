@@ -3,12 +3,8 @@ use embassy_nrf::{
     Peripheral,
 };
 use rktk::{
-    drivers::interface::{
-        dongle::DongleData,
-        rgb::{RgbCommand, RgbDriver, RgbMode},
-    },
+    drivers::interface::rgb::{RgbCommand, RgbDriver, RgbMode},
     hooks::{
-        channels::rgb_sender,
         empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
         interface::{rgb::RGB8, MasterHooks, RgbHooks},
         Hooks,
@@ -17,14 +13,10 @@ use rktk::{
 
 pub fn create_hooks(
     led_off_pin: impl Peripheral<P = impl Pin> + 'static,
-    ptx: embassy_nrf_esb::ptx::PtxRadio<'static, embassy_nrf::peripherals::RADIO, 64>,
 ) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
     Hooks {
         common: EmptyCommonHooks,
-        master: NegMasterHooks {
-            latest_led: None,
-            ptx,
-        },
+        master: NegMasterHooks { latest_led: None },
         slave: EmptySlaveHooks,
         rgb: NegRgbHooks {
             led_off: embassy_nrf::gpio::Output::new(
@@ -38,7 +30,6 @@ pub fn create_hooks(
 
 pub struct NegMasterHooks {
     latest_led: Option<RgbCommand>,
-    ptx: embassy_nrf_esb::ptx::PtxRadio<'static, embassy_nrf::peripherals::RADIO, 64>,
 }
 
 impl MasterHooks for NegMasterHooks {
@@ -55,26 +46,6 @@ impl MasterHooks for NegMasterHooks {
             4 => RgbCommand::Start(RgbMode::SolidColor(10, 10, 0)),
             _ => RgbCommand::Reset,
         };
-        if let Some(k) = state_report.keyboard_report {
-            let mut buf = [0; 64];
-            if let Ok(s) = postcard::to_slice(&DongleData::Keyboard(k.into()), &mut buf) {
-                self.ptx.send(0, s, false).await;
-            }
-        }
-        if let Some(m) = state_report.mouse_report {
-            let mut buf = [0; 64];
-            if let Ok(s) = postcard::to_slice(&DongleData::Mouse(m.into()), &mut buf) {
-                self.ptx.send(0, s, false).await;
-            }
-        }
-
-        if let Some(latest_led) = &self.latest_led {
-            if led != *latest_led {
-                let rgb_sender = rgb_sender();
-                let _ = rgb_sender.try_send(led.clone());
-                // let _ = m2s_tx.try_send(MasterToSlave::Rgb(led.clone()));
-            }
-        }
 
         self.latest_led = Some(led);
 

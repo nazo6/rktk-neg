@@ -41,8 +41,8 @@ use rktk_drivers_common::{
     usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
 };
 use rktk_drivers_nrf::{
-    mouse::paw3395, rgb::ws2812_pwm::Ws2812Pwm, split::uart_full_duplex::UartFullDuplexSplitDriver,
-    system::NrfSystemDriver,
+    dongle::reporter::EsbReporterDriverBuilder, mouse::paw3395, rgb::ws2812_pwm::Ws2812Pwm,
+    split::uart_full_duplex::UartFullDuplexSplitDriver, system::NrfSystemDriver,
 };
 
 mod hooks;
@@ -63,8 +63,6 @@ fn init() -> Peripherals {
     let p = {
         let config = {
             let mut config = embassy_nrf::config::Config::default();
-            config.gpiote_interrupt_priority = Priority::P2;
-            config.time_interrupt_priority = Priority::P2;
             config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
             config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
             config
@@ -105,7 +103,7 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
-    let mut ptx = embassy_nrf_esb::ptx::PtxRadio::<'_, _, 64>::new(
+    let ptx = embassy_nrf_esb::ptx::PtxRadio::<'_, _, 64>::new(
         p.RADIO,
         Irqs,
         embassy_nrf_esb::RadioConfig::default(),
@@ -113,13 +111,10 @@ async fn main(_spawner: Spawner) {
     )
     .unwrap();
 
-    rktk::print!("ptx");
-
-    let ble_builder = none_driver!(BleBuilder);
+    let ble_builder = Some(EsbReporterDriverBuilder::new(ptx));
 
     embassy_time::Timer::after_millis(200).await;
 
-    #[cfg(all(not(feature = "ble-split-slave"), not(feature = "ble-split-master")))]
     let split = {
         let uarte_config = embassy_nrf::uarte::Config::default();
         UartFullDuplexSplitDriver::new(BufferedUarte::new(
@@ -249,7 +244,7 @@ async fn main(_spawner: Spawner) {
         }
     };
 
-    let hooks = hooks::create_hooks(p.P0_31, ptx);
+    let hooks = hooks::create_hooks(p.P0_31);
 
     rktk::task::start(drivers, keymap::KEYMAP, hooks).await;
 }
