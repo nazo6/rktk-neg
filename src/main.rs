@@ -54,7 +54,7 @@ bind_interrupts!(pub struct Irqs {
     SPI2 => embassy_nrf::spim::InterruptHandler<SPI2>;
     TWISPI0 => embassy_nrf::twim::InterruptHandler<embassy_nrf::peripherals::TWISPI0>;
     UARTE0 => embassy_nrf::buffered_uarte::InterruptHandler<embassy_nrf::peripherals::UARTE0>;
-    // RADIO => embassy_nrf_esb::InterruptHandler<embassy_nrf::peripherals::RADIO>;
+    RADIO => embassy_nrf_esb::InterruptHandler<embassy_nrf::peripherals::RADIO>;
 });
 
 static SOFTWARE_VBUS: OnceCell<SoftwareVbusDetect> = OnceCell::new();
@@ -103,16 +103,18 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
-    // let ptx = embassy_nrf_esb::ptx::PtxRadio::<'_, _, 64>::new(
-    //     p.RADIO,
-    //     Irqs,
-    //     embassy_nrf_esb::RadioConfig::default(),
-    //     embassy_nrf_esb::ptx::PtxConfig::default(),
-    // )
-    // .unwrap();
-    //
-    // let ble_builder = Some(EsbReporterDriverBuilder::new(ptx));
-    let ble_builder = none_driver!(BleBuilder);
+    let ptx = embassy_nrf_esb::ptx::PtxRadio::<'_, _, 64>::new(
+        p.RADIO,
+        Irqs,
+        embassy_nrf_esb::RadioConfig {
+            tx_power: embassy_nrf::radio::TxPower::POS8_DBM,
+            ..Default::default()
+        },
+        embassy_nrf_esb::ptx::PtxConfig::default(),
+    )
+    .unwrap();
+
+    let ble_builder = Some(EsbReporterDriverBuilder::new(ptx));
 
     embassy_time::Timer::after_millis(200).await;
 
