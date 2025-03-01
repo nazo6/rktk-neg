@@ -103,7 +103,7 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
-    let ptx = embassy_nrf_esb::ptx::PtxRadio::<'_, _, 64>::new(
+    let ble_builder = Some(EsbReporterDriverBuilder::new(
         p.RADIO,
         Irqs,
         embassy_nrf_esb::RadioConfig {
@@ -111,10 +111,7 @@ async fn main(_spawner: Spawner) {
             ..Default::default()
         },
         embassy_nrf_esb::ptx::PtxConfig::default(),
-    )
-    .unwrap();
-
-    let ble_builder = Some(EsbReporterDriverBuilder::new(ptx));
+    ));
 
     embassy_time::Timer::after_millis(200).await;
 
@@ -254,6 +251,7 @@ async fn main(_spawner: Spawner) {
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
+    defmt::info!("panic");
     cortex_m::interrupt::disable();
     panic_utils::save_panic_info(info);
     cortex_m::peripheral::SCB::sys_reset()
