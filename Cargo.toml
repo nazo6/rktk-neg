@@ -33,10 +33,6 @@ embassy-nrf = { version = "0.3.0", features = [
 ] }
 embassy-sync = { version = "0.6.0" }
 
-embassy-nrf-esb = { path = "../../../lib/embassy-nrf-esb", features = [
-  "fast-ru",
-] }
-
 cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = { version = "0.7.3" }
 
@@ -67,7 +63,6 @@ defmt = [
   "rktk-drivers-common/defmtusb",
   "rktk-drivers-common/defmt-timestamp",
   "rktk-drivers-nrf/defmt",
-  "embassy-nrf-esb/defmt",
 ]
 log = [
   "dep:log",
