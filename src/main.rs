@@ -27,8 +27,6 @@ use embassy_nrf::{
 };
 use embassy_sync::{blocking_mutex::raw::ThreadModeRawMutex, mutex::Mutex};
 use once_cell::sync::OnceCell;
-use rktk::drivers::interface::reporter::ReporterDriver as _;
-use rktk::drivers::interface::{BackgroundTask as _, DriverBuilderWithTask};
 use rktk::{
     drivers::{interface::keyscan::Hand, Drivers},
     none_driver, singleton,
@@ -43,7 +41,11 @@ use rktk_drivers_common::{
     usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
 };
 use rktk_drivers_nrf::{
-    dongle::reporter::{EsbInterruptHandler, EsbReporterDriverBuilder, TimerInterruptHandler},
+    esb::{
+        create_address,
+        reporter::{EsbInterruptHandler, EsbReporterDriverBuilder, TimerInterruptHandler},
+        Config as EsbConfig,
+    },
     mouse::paw3395,
     rgb::ws2812_pwm::Ws2812Pwm,
     split::uart_full_duplex::UartFullDuplexSplitDriver,
@@ -110,7 +112,15 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
-    let d = EsbReporterDriverBuilder::new(p.TIMER0, p.RADIO, Irqs);
+    let d = EsbReporterDriverBuilder::new(
+        p.TIMER0,
+        p.RADIO,
+        Irqs,
+        EsbConfig {
+            addresses: create_address(90).unwrap(),
+            ..EsbConfig::default()
+        },
+    );
     let ble_builder = Some(d);
 
     embassy_time::Timer::after_millis(200).await;

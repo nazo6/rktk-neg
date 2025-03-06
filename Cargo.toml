@@ -11,6 +11,7 @@ mcu = "Nrf52840"
 [dependencies]
 rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", default-features = false, features = [
   "nightly",
+  "esb",
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
 rktk-keymanager = { path = "../rktk/lib/rktk-keymanager" }

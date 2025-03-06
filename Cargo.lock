@@ -164,9 +164,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "cc"
-version = "1.2.15"
+version = "1.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c736e259eea577f443d5c86c304f9f4ae0295c43f3ba05c21f1d66b5f06001af"
+checksum = "be714c154be609ec7f5dad223a33bf1482fff90472de28f7362806e6d4832b8c"
 dependencies = [
  "shlex",
 ]
@@ -1241,18 +1241,18 @@ checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pin-project"
-version = "1.1.9"
+version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfe2e71e1471fe07709406bf725f710b02927c9c54b2b5b2ec0e8087d97c327d"
+checksum = "677f1add503faace112b9f1373e43e9e054bfdd22ff1a63c1bc485eaec6a6a8a"
 dependencies = [
  "pin-project-internal",
 ]
 
 [[package]]
 name = "pin-project-internal"
-version = "1.1.9"
+version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6e859e6e5bd50440ab63c47e3ebabc90f26251f7c73c3d3e837b74a1cc3fa67"
+checksum = "6e918e4ff8c4549eb882f14b3a4bc8c8bc93de829416eacf579f1207a8fbf861"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1454,13 +1454,11 @@ dependencies = [
  "embassy-sync",
  "embassy-time",
  "embedded-graphics",
- "embedded-io-async",
  "futures",
  "heapless 0.7.17",
  "itertools",
  "log",
  "macro_rules_attribute",
- "paste",
  "postcard",
  "rktk-keymanager",
  "rktk-log",
@@ -1509,9 +1507,8 @@ dependencies = [
  "atomic-pool",
  "bitvec",
  "cortex-m",
- "cortex-m-rt",
  "defmt",
- "display-interface",
+ "document-features",
  "embassy-embedded-hal",
  "embassy-executor",
  "embassy-futures",
@@ -1532,7 +1529,6 @@ dependencies = [
  "sequential-storage",
  "serde",
  "smart-leds",
- "ssd1306",
  "ssmarshal",
  "static_cell",
  "thiserror",
@@ -1544,6 +1540,7 @@ name = "rktk-keymanager"
 version = "0.1.0"
 dependencies = [
  "defmt",
+ "document-features",
  "heapless 0.7.17",
  "macro_rules_attribute",
  "paste",

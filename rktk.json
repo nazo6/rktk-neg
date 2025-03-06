@@ -222,7 +222,8 @@
   },
   "rktk": {
     "scan_interval_keyboard": 5,
-    "scan_interval_mouse": 5
+    "scan_interval_mouse": 5,
+    "display_timeout": 60000
   },
   "key_manager": {
     "constant": {
