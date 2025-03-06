@@ -108,7 +108,7 @@ async fn main(_spawner: Spawner) {
         spi_config.frequency = embassy_nrf::spim::Frequency::K250;
 
         Mutex::<ThreadModeRawMutex, _>::new(embassy_nrf::spim::Spim::new(
-            p.SPI2, Irqs, p.P0_17, p.P0_22, p.P0_20, spi_config,
+            p.SPI2, Irqs, p.P0_08, p.P0_13, p.P0_15, spi_config,
         ))
     };
 
@@ -125,30 +125,30 @@ async fn main(_spawner: Spawner) {
 
     embassy_time::Timer::after_millis(200).await;
 
-    let split = {
-        let uarte_config = embassy_nrf::uarte::Config::default();
-        UartFullDuplexSplitDriver::new(BufferedUarte::new(
-            p.UARTE0,
-            p.TIMER1,
-            p.PPI_CH0,
-            p.PPI_CH1,
-            p.PPI_GROUP0,
-            Irqs,
-            p.P0_08,
-            p.P0_06,
-            uarte_config,
-            singleton!([0; 256], [u8; 256]),
-            singleton!([0; 256], [u8; 256]),
-        ))
-    };
+    // let split = {
+    //     let uarte_config = embassy_nrf::uarte::Config::default();
+    //     UartFullDuplexSplitDriver::new(BufferedUarte::new(
+    //         p.UARTE0,
+    //         p.TIMER1,
+    //         p.PPI_CH0,
+    //         p.PPI_CH1,
+    //         p.PPI_GROUP0,
+    //         Irqs,
+    //         p.P0_08,
+    //         p.P0_06,
+    //         uarte_config,
+    //         singleton!([0; 256], [u8; 256]),
+    //         singleton!([0; 256], [u8; 256]),
+    //     ))
+    // };
 
     let drivers = {
         let display = Ssd1306DisplayBuilder::new(
             Twim::new(
                 p.TWISPI0,
                 Irqs,
-                p.P1_00,
-                p.P0_11,
+                p.P1_10,
+                p.P1_04,
                 rktk_drivers_nrf::display::ssd1306::recommended_i2c_config(),
             ),
             ssd1306::size::DisplaySize128x32,
@@ -158,7 +158,7 @@ async fn main(_spawner: Spawner) {
         };
 
         let ball_cs = Output::new(
-            p.P1_06,
+            p.P1_03,
             embassy_nrf::gpio::Level::High,
             OutputDrive::Standard,
         );
@@ -166,7 +166,7 @@ async fn main(_spawner: Spawner) {
         let ball = Paw3395Builder::new(ball_spi_device, misc::PAW3395_CONFIG);
 
         let shift_register_cs = Output::new(
-            p.P1_04,
+            p.P0_10,
             embassy_nrf::gpio::Level::High,
             OutputDrive::Standard,
         );
@@ -174,11 +174,11 @@ async fn main(_spawner: Spawner) {
         let keyscan = ShiftRegisterMatrix::<_, _, 8, 5, 8, 5>::new(
             shift_register_spi_device,
             [
-                Input::new(p.P1_15, Pull::Down), // ROW0
-                Input::new(p.P1_13, Pull::Down), // ROW1
-                Input::new(p.P1_11, Pull::Down), // ROW2
-                Input::new(p.P0_10, Pull::Down), // ROW3
-                Input::new(p.P0_09, Pull::Down), // ROW4
+                Input::new(p.P0_02, Pull::Down), // ROW0
+                Input::new(p.P1_15, Pull::Down), // ROW1
+                Input::new(p.P1_13, Pull::Down), // ROW2
+                Input::new(p.P1_11, Pull::Down), // ROW3
+                Input::new(p.P1_12, Pull::Down), // ROW4
             ],
             HandDetector::Constant({
                 #[cfg(feature = "left")]
@@ -194,10 +194,11 @@ async fn main(_spawner: Spawner) {
             None,
         );
 
-        let encoder = GeneralEncoder::new([(
-            Input::new(p.P0_02, Pull::Down),
-            Input::new(p.P0_29, Pull::Down),
-        )]);
+        // let encoder = GeneralEncoder::new([(
+        //     Input::new(p.P0_02, Pull::Down),
+        //     Input::new(p.P0_29, Pull::Down),
+        // )]);
+        //
 
         let rgb = Ws2812Pwm::new(p.PWM0, p.P0_24);
         let usb = {
@@ -232,7 +233,7 @@ async fn main(_spawner: Spawner) {
         // let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);
 
         let vcc_cutoff = (
-            Output::new(p.P0_13, Level::High, OutputDrive::Standard),
+            Output::new(p.P0_05, Level::High, OutputDrive::Standard),
             Level::Low,
         );
 
@@ -242,7 +243,8 @@ async fn main(_spawner: Spawner) {
             mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),
-            split: Some(split),
+            // split: Some(split),
+            split: none_driver!(Split),
             rgb: Some(rgb),
             storage: none_driver!(Storage),
             ble_builder,
@@ -250,7 +252,8 @@ async fn main(_spawner: Spawner) {
                 embassy_time::Duration::from_millis(10),
                 true,
             )),
-            encoder: Some(encoder),
+            // encoder: Some(encoder),
+            encoder: none_driver!(Encoder),
         }
     };
 
