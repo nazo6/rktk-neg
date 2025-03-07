@@ -10,7 +10,7 @@ mcu = "Nrf52840"
 
 [dependencies]
 rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
-  "ble",
+  "softdevice-ble",
   "nightly",
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }

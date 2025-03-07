@@ -3,7 +3,10 @@ use embassy_nrf::{
     Peripheral,
 };
 use rktk::{
-    drivers::interface::rgb::{RgbCommand, RgbDriver, RgbMode},
+    drivers::interface::{
+        reporter::ReporterDriver,
+        rgb::{RgbCommand, RgbDriver, RgbMode},
+    },
     hooks::{
         channels::rgb_sender,
         empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
@@ -37,6 +40,8 @@ impl MasterHooks for NegMasterHooks {
     async fn on_state_update(
         &mut self,
         state_report: &mut rktk_keymanager::interface::report::StateReport,
+        _usb_reporter: &Option<impl ReporterDriver>,
+        _ble_reporter: &Option<impl ReporterDriver>,
     ) -> bool {
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
