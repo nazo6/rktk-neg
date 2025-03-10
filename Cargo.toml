@@ -14,8 +14,7 @@ rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf", features = [
   "nightly",
 ] }
 rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common" }
-rktk-keymanager = { path = "../rktk/lib/rktk-keymanager" }
-rktk = { path = "../rktk/lib/rktk" }
+rktk = { path = "../rktk/lib/rktk", features = ["rrp"] }
 rktk-log = { path = "../rktk/lib/rktk-log" }
 
 embassy-embedded-hal = "0.3.0"

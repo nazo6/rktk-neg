@@ -1,10 +1,6 @@
 use rktk::config::keymap::{
-    keymanager::keycode::{
-        key::*, layer::*, media::*, modifier::*, mouse::*, special::*, utils::*, *,
-    },
-    Keymap, Layer, LayerKeymap,
+    keymanager::keymap::TapDanceDefinition, prelude::*, Keymap, Layer, LayerKeymap,
 };
-use rktk_keymanager::keymap::TapDanceDefinition;
 
 const L2ENTER: KeyAction = KeyAction::TapHold(
     KeyCode::Key(Key::Enter),
@@ -75,30 +71,34 @@ const L4: LayerKeymap = [
 ];
 
 pub const KEYMAP: Keymap = Keymap {
-    encoder_keys: [(
-        KeyCode::Media(Media::VolumeIncrement),
-        KeyCode::Media(Media::VolumeDecrement),
-    )],
     layers: [
         Layer {
             keymap: L0,
-            arrow_mouse: false,
+            encoder_keys: [(
+                Some(KeyCode::Media(Media::VolumeIncrement)),
+                Some(KeyCode::Media(Media::VolumeDecrement)),
+            )],
+            ..Layer::const_default()
         },
         Layer {
             keymap: L1,
-            arrow_mouse: false,
+            encoder_keys: [(
+                Some(KeyCode::Media(Media::VolumeIncrement)),
+                Some(KeyCode::Media(Media::VolumeDecrement)),
+            )],
+            ..Layer::const_default()
         },
         Layer {
             keymap: L2,
-            arrow_mouse: false,
+            ..Layer::const_default()
         },
         Layer {
             keymap: L3,
-            arrow_mouse: true,
+            ..Layer::const_default()
         },
         Layer {
             keymap: L4,
-            arrow_mouse: true,
+            ..Layer::const_default()
         },
     ],
     tap_dance: [Some(TapDanceDefinition {

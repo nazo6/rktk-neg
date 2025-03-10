@@ -988,7 +988,6 @@ dependencies = [
  "rktk",
  "rktk-drivers-common",
  "rktk-drivers-nrf",
- "rktk-keymanager",
  "rktk-log",
  "ssd1306",
  "static_cell",
@@ -1230,9 +1229,9 @@ name = "rktk"
 version = "0.1.0"
 dependencies = [
  "const-gen",
- "critical-section",
  "defmt",
  "display-interface",
+ "document-features",
  "embassy-executor",
  "embassy-futures",
  "embassy-sync",
@@ -1254,6 +1253,7 @@ dependencies = [
  "smart-leds",
  "ssmarshal",
  "static_cell",
+ "strum",
  "usbd-hid",
 ]
 

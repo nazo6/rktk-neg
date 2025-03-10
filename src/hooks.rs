@@ -9,15 +9,15 @@ use rktk::{
     },
     hooks::{
         channels::rgb_sender,
-        empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
-        interface::{rgb::RGB8, MasterHooks, RgbHooks},
+        empty_hooks::{EmptyCommonHooks, EmptyKeymanagerHooks, EmptySlaveHooks},
+        interface::{master::Report, rgb::RGB8, MasterHooks, RgbHooks},
         Hooks,
     },
 };
 
 pub fn create_hooks(
     led_off_pin: impl Peripheral<P = impl Pin> + 'static,
-) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
+) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks, EmptyKeymanagerHooks> {
     Hooks {
         common: EmptyCommonHooks,
         master: NegMasterHooks { latest_led: None },
@@ -29,6 +29,7 @@ pub fn create_hooks(
                 embassy_nrf::gpio::OutputDrive::Standard,
             ),
         },
+        key_manager: EmptyKeymanagerHooks,
     }
 }
 
@@ -39,7 +40,7 @@ pub struct NegMasterHooks {
 impl MasterHooks for NegMasterHooks {
     async fn on_state_update(
         &mut self,
-        state_report: &mut rktk_keymanager::interface::report::StateReport,
+        state_report: &mut Report,
         _usb_reporter: &Option<impl ReporterDriver>,
         _ble_reporter: &Option<impl ReporterDriver>,
     ) -> bool {
