@@ -9,7 +9,7 @@ use rktk::{
     },
     hooks::{
         channels::rgb_sender,
-        empty_hooks::{EmptyCommonHooks, EmptyKeymanagerHooks, EmptySlaveHooks},
+        empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
         interface::{master::Report, rgb::RGB8, MasterHooks, RgbHooks},
         Hooks,
     },
@@ -17,7 +17,7 @@ use rktk::{
 
 pub fn create_hooks(
     led_off_pin: impl Peripheral<P = impl Pin> + 'static,
-) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks, EmptyKeymanagerHooks> {
+) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
     Hooks {
         common: EmptyCommonHooks,
         master: NegMasterHooks { latest_led: None },
@@ -29,7 +29,6 @@ pub fn create_hooks(
                 embassy_nrf::gpio::OutputDrive::Standard,
             ),
         },
-        key_manager: EmptyKeymanagerHooks,
     }
 }
 
