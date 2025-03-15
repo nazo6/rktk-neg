@@ -35,7 +35,7 @@ use rktk_drivers_common::{
     debounce::EagerDebounceDriver,
     display::ssd1306::Ssd1306DisplayBuilder,
     encoder::GeneralEncoder,
-    keyscan::{shift_register_matrix::ShiftRegisterMatrix, HandDetector},
+    keyscan::shift_register_matrix::ShiftRegisterMatrix,
     mouse::paw3395::Paw3395Builder,
     panic_utils,
     usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
@@ -167,6 +167,17 @@ async fn main(_spawner: Spawner) {
         ))
     };
 
+    let hand = {
+        #[cfg(feature = "left")]
+        {
+            Hand::Left
+        }
+        #[cfg(feature = "right")]
+        {
+            Hand::Right
+        }
+    };
+
     let drivers = {
         let display = Ssd1306DisplayBuilder::new(
             Twim::new(
@@ -196,7 +207,8 @@ async fn main(_spawner: Spawner) {
             OutputDrive::Standard,
         );
         let shift_register_spi_device = SpiDevice::new(&shared_spi, shift_register_cs);
-        let keyscan = ShiftRegisterMatrix::<_, _, 8, 5, 8, 5>::new(
+
+        let keyscan = ShiftRegisterMatrix::<_, _, _, 8, 5, 5, 8>::new(
             shift_register_spi_device,
             [
                 Input::new(p.P1_15, Pull::Down), // ROW0
@@ -205,16 +217,6 @@ async fn main(_spawner: Spawner) {
                 Input::new(p.P0_10, Pull::Down), // ROW3
                 Input::new(p.P0_09, Pull::Down), // ROW4
             ],
-            HandDetector::Constant({
-                #[cfg(feature = "left")]
-                {
-                    Hand::Left
-                }
-                #[cfg(feature = "right")]
-                {
-                    Hand::Right
-                }
-            }),
             misc::translate_key_position,
             None,
         );
@@ -281,7 +283,7 @@ async fn main(_spawner: Spawner) {
 
     let hooks = hooks::create_hooks(p.P0_31);
 
-    rktk::task::start(drivers, keymap::KEYMAP, hooks).await;
+    rktk::task::start(drivers, keymap::KEYMAP, Some(hand), hooks).await;
 }
 
 #[panic_handler]
