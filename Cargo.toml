@@ -14,7 +14,7 @@ rktk-drivers-nrf = { version = "0.1.0", features = [
   "nightly",
 ] }
 rktk-drivers-common = { version = "0.1.0" }
-rktk = { version = "0.1.0", features = ["rrp"] }
+rktk = { version = "0.1.0" }
 rktk-log = { version = "0.1.0" }
 
 embassy-embedded-hal = "0.3.0"
@@ -57,7 +57,7 @@ rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf/" }
 rktk-log = { path = "../rktk/lib/rktk-log" }
 
 [features]
-default = ["defmt", "alloc"]
+default = ["defmt", "rrp", "alloc"]
 
 alloc = ["dep:embedded-alloc", "rktk/alloc"]
 right = []
@@ -65,6 +65,8 @@ left = []
 ble-split-master = []
 ble-split-slave = []
 force-slave = []
+
+rrp = ["rktk/rrp"]
 
 defmt = [
   "dep:defmt",

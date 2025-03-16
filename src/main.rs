@@ -243,6 +243,7 @@ async fn main(_spawner: Spawner) {
                 mouse_poll_interval: 1,
                 kb_poll_interval: 5,
                 driver,
+                #[cfg(feature = "defmt")]
                 defmt_usb_use_dtr: true,
             };
             Some(CommonUsbDriverBuilder::new(opts))
@@ -280,7 +281,7 @@ async fn main(_spawner: Spawner) {
 
     let hooks = hooks::create_hooks(p.P0_31);
 
-    rktk::task::start(drivers, keymap::KEYMAP, Some(hand), hooks).await;
+    rktk::task::start(drivers, &keymap::KEYMAP, Some(hand), hooks).await;
 }
 
 #[panic_handler]
