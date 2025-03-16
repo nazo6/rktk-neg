@@ -261,8 +261,8 @@ async fn main(_spawner: Spawner) {
         );
 
         Drivers {
-            keyscan: Some(keyscan),
-            system: Some(NrfSystemDriver::new(Some(vcc_cutoff))),
+            keyscan,
+            system: NrfSystemDriver::new(Some(vcc_cutoff)),
             mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),
