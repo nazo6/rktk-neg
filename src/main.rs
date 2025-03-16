@@ -27,10 +27,7 @@ use embassy_nrf::{
 };
 use embassy_sync::{blocking_mutex::raw::ThreadModeRawMutex, mutex::Mutex};
 use once_cell::sync::OnceCell;
-use rktk::{
-    drivers::{interface::keyscan::Hand, Drivers},
-    none_driver, singleton,
-};
+use rktk::{drivers::Drivers, interface::Hand, none_driver, singleton};
 use rktk_drivers_common::{
     debounce::EagerDebounceDriver,
     display::ssd1306::Ssd1306DisplayBuilder,
@@ -264,8 +261,8 @@ async fn main(_spawner: Spawner) {
         );
 
         Drivers {
-            keyscan,
-            system: NrfSystemDriver::new(Some(vcc_cutoff)),
+            keyscan: Some(keyscan),
+            system: Some(NrfSystemDriver::new(Some(vcc_cutoff))),
             mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),

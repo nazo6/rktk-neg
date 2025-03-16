@@ -70,7 +70,7 @@ pub struct NegRgbHooks {
 }
 
 impl RgbHooks for NegRgbHooks {
-    async fn on_rgb_init(&mut self, _driver: &mut impl RgbDriver) {
+    async fn on_rgb_init(&mut self, _driver: &mut impl RgbDriver, _is_master: bool) {
         self.led_off.set_high();
     }
     async fn on_rgb_process<const N: usize>(
