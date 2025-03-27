@@ -233,6 +233,9 @@
       "oneshot_state_size": 5,
       "tap_dance_max_definitions": 1,
       "tap_dance_max_repeats": 4
+    },
+    "mouse": {
+      "auto_mouse_threshold": 10
     }
   }
 }
