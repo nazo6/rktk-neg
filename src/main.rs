@@ -30,7 +30,7 @@ use once_cell::sync::OnceCell;
 use rktk::{drivers::Drivers, interface::Hand, none_driver, singleton};
 use rktk_drivers_common::{
     debounce::EagerDebounceDriver,
-    display::ssd1306::Ssd1306DisplayBuilder,
+    display::ssd1306::{self, Ssd1306DisplayBuilder},
     encoder::GeneralEncoder,
     keyscan::shift_register_matrix::ShiftRegisterMatrix,
     mouse::paw3395::Paw3395Builder,
@@ -184,7 +184,7 @@ async fn main(_spawner: Spawner) {
                 p.P0_11,
                 rktk_drivers_nrf::display::ssd1306::recommended_i2c_config(),
             ),
-            ssd1306::size::DisplaySize128x32,
+            ssd1306::prelude::DisplaySize128x32,
         );
         let Some(display) = panic_utils::display_message_if_panicked(display).await else {
             cortex_m::asm::udf()
