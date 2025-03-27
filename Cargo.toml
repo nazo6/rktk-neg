@@ -5,9 +5,6 @@ name = "negl-nrf52840"
 version = "0.1.0"
 edition = "2021"
 
-[package.metadata.rktk-cli]
-mcu = "Nrf52840"
-
 [dependencies]
 rktk-drivers-nrf = { version = "0.1.0", features = [
   "softdevice-ble",

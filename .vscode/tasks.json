@@ -9,27 +9,27 @@
     {
       "label": "deploy-right",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --features right"
+      "command": "cargo run --release --features right"
     },
     {
       "label": "deploy-left",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --features left"
+      "command": "cargo run --release --features left"
     },
     {
       "label": "deploy-left-slave",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --features left,force-slave"
+      "command": "cargo run --release --features left,force-slave"
     },
     {
       "label": "deploy-ble-left-slave",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --features left,ble-split-slave"
+      "command": "cargo run --release --features left,ble-split-slave"
     },
     {
       "label": "deploy-ble-right-master",
       "type": "shell",
-      "command": "rktk-cli build -d auto -- --features right,ble-split-master"
+      "command": "cargo run --release --features right,ble-split-master"
     }
   ]
 }
