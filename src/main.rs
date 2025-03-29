@@ -34,10 +34,10 @@ use rktk::{
 };
 use rktk_drivers_common::{
     debounce::EagerDebounceDriver,
-    display::ssd1306::{self, Ssd1306DisplayBuilder},
+    display::ssd1306::{self, Ssd1306Display},
     encoder::GeneralEncoder,
     keyscan::shift_register_matrix::ShiftRegisterMatrix,
-    mouse::paw3395::Paw3395Builder,
+    mouse::paw3395::Paw3395,
     panic_utils,
     usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts},
 };
@@ -180,7 +180,7 @@ async fn main(_spawner: Spawner) {
     };
 
     let drivers = {
-        let display = Ssd1306DisplayBuilder::new(
+        let mut display = Ssd1306Display::new(
             Twim::new(
                 p.TWISPI0,
                 Irqs,
@@ -190,9 +190,7 @@ async fn main(_spawner: Spawner) {
             ),
             ssd1306::prelude::DisplaySize128x32,
         );
-        let Some(display) = panic_utils::display_message_if_panicked(display).await else {
-            cortex_m::asm::udf()
-        };
+        panic_utils::display_message_if_panicked(&mut display).await;
 
         let ball_cs = Output::new(
             p.P1_06,
@@ -200,7 +198,7 @@ async fn main(_spawner: Spawner) {
             OutputDrive::Standard,
         );
         let ball_spi_device = SpiDevice::new(&shared_spi, ball_cs);
-        let ball = Paw3395Builder::new(ball_spi_device, misc::PAW3395_CONFIG);
+        let ball = Paw3395::new(ball_spi_device, misc::PAW3395_CONFIG);
 
         let shift_register_cs = Output::new(
             p.P1_04,
@@ -268,10 +266,10 @@ async fn main(_spawner: Spawner) {
         Drivers {
             keyscan,
             system: NrfSystemDriver::new(Some(vcc_cutoff)),
-            mouse_builder: Some(ball),
+            mouse: Some(ball),
             usb_builder: usb,
-            display_builder: Some(display),
-            split_builder: Some(split),
+            display: Some(display),
+            split: Some(split),
             rgb: Some(rgb),
             storage: dummy::storage(),
             ble_builder,
