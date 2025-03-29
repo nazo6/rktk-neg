@@ -27,7 +27,11 @@ use embassy_nrf::{
 };
 use embassy_sync::{blocking_mutex::raw::ThreadModeRawMutex, mutex::Mutex};
 use once_cell::sync::OnceCell;
-use rktk::{drivers::Drivers, interface::Hand, none_driver, singleton};
+use rktk::{
+    drivers::{dummy, Drivers},
+    interface::Hand,
+    singleton,
+};
 use rktk_drivers_common::{
     debounce::EagerDebounceDriver,
     display::ssd1306::{self, Ssd1306DisplayBuilder},
@@ -85,7 +89,7 @@ fn init() -> Peripherals {
     #[cfg(feature = "alloc")]
     {
         use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 16384;
+        const HEAP_SIZE: usize = 32768;
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(&raw mut HEAP_MEM as usize, HEAP_SIZE) }
     }
@@ -267,9 +271,9 @@ async fn main(_spawner: Spawner) {
             mouse_builder: Some(ball),
             usb_builder: usb,
             display_builder: Some(display),
-            split: Some(split),
+            split_builder: Some(split),
             rgb: Some(rgb),
-            storage: none_driver!(Storage),
+            storage: dummy::storage(),
             ble_builder,
             debounce: Some(EagerDebounceDriver::new(
                 embassy_time::Duration::from_millis(10),
