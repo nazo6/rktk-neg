@@ -47,7 +47,9 @@ async fn main(_spawner: Spawner) {
     #[cfg(feature = "trouble")]
     let trouble_ble_reporter = {
         use rand_chacha::{rand_core::SeedableRng as _, ChaCha12Rng};
-        use rktk_drivers_common::trouble::reporter::TroubleReporterBuilder;
+        use rktk_drivers_common::trouble::reporter::{
+            TroubleReporterBuilder, TroubleReporterConfig,
+        };
         use rktk_drivers_nrf::init_sdc;
 
         let mut rng = singleton!(
@@ -63,7 +65,14 @@ async fn main(_spawner: Spawner) {
             txq: 3,
             rxq: 3
         );
-        TroubleReporterBuilder::<_, _, 1, 5, 72>::new(sdc.unwrap(), rng_2)
+        TroubleReporterBuilder::<_, _, 1, 5, 72>::new(
+            sdc.unwrap(),
+            rng_2,
+            TroubleReporterConfig {
+                advertise_name: "negL Trouble",
+                peripheral_config: None,
+            },
+        )
     };
 
     cfg_if::cfg_if! {
@@ -75,6 +84,8 @@ async fn main(_spawner: Spawner) {
             let ble_builder = dummy::ble_builder();
         }
     }
+
+    rktk_log::warn!("Hello");
 
     let usb = {
         let vbus = SOFTWARE_VBUS.get_or_init(|| SoftwareVbusDetect::new(true, true));
