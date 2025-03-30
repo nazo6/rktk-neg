@@ -1,3 +1,4 @@
 {
-  "rust-analyzer.check.features": ["right"]
+  "rust-analyzer.check.features": ["_check"],
+  "rust-analyzer.cargo.allTargets": false
 }
