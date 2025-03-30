@@ -68,9 +68,9 @@ async fn main(_spawner: Spawner) {
 
     cfg_if::cfg_if! {
         if #[cfg(feature = "sd")] {
-            let ble_builder = init_sd().await.0;
+            let ble_builder = Some(init_sd().await.0);
         } else if #[cfg(feature = "trouble")] {
-            let ble_builder = trouble_ble_reporter;
+            let ble_builder = Some(trouble_ble_reporter);
         } else {
             let ble_builder = dummy::ble_builder();
         }
@@ -111,7 +111,7 @@ async fn main(_spawner: Spawner) {
         split: Some(driver_split!(p)),
         rgb: Some(driver_rgb!(p)),
         storage: dummy::storage(),
-        ble_builder: Some(ble_builder),
+        ble_builder,
         debounce: Some(driver_debounce!()),
         encoder: Some(driver_encoder!(p)),
     };

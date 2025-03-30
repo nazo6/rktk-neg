@@ -7,9 +7,14 @@
   },
   "tasks": [
     {
-      "label": "deploy-master-right",
+      "label": "deploy-master-right-trouble",
       "type": "shell",
       "command": "cargo run --release --bin master --features right,trouble"
+    },
+    {
+      "label": "deploy-master-right-sd",
+      "type": "shell",
+      "command": "cargo run --release --bin master --features right,sd"
     },
     {
       "label": "deploy-slave-left",
