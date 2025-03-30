@@ -47,10 +47,10 @@ log = { version = "0.4.25", optional = true }
 defmt = { version = "0.3.10", optional = true }
 
 [patch.crates-io]
-rktk = { path = "../rktk/lib/rktk" }
-rktk-drivers-common = { path = "../rktk/lib/rktk-drivers-common/" }
-rktk-drivers-nrf = { path = "../rktk/lib/rktk-drivers-nrf/" }
-rktk-log = { path = "../rktk/lib/rktk-log" }
+rktk = { path = "../../rktk/lib/rktk" }
+rktk-drivers-common = { path = "../../rktk/lib/rktk-drivers-common/" }
+rktk-drivers-nrf = { path = "../../rktk/lib/rktk-drivers-nrf/" }
+rktk-log = { path = "../../rktk/lib/rktk-log" }
 
 [features]
 default = ["defmt", "rrp", "alloc"]
