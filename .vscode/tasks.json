@@ -19,7 +19,7 @@
     {
       "label": "deploy-slave-left",
       "type": "shell",
-      "command": "cargo run --release --bin master --features left"
+      "command": "cargo run --release --bin slave --features left,sd"
     }
   ]
 }

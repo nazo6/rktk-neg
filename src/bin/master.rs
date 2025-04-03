@@ -10,7 +10,7 @@ use rktk::{
     drivers::{dummy, Drivers},
     singleton,
 };
-use rktk_drivers_common::usb::{CommonUsbDriverBuilder, UsbDriverConfig, UsbOpts};
+use rktk_drivers_common::usb::{CommonUsbDriverBuilder, CommonUsbDriverConfig};
 
 #[cfg(not(feature = "trouble"))]
 bind_interrupts!(pub struct Irqs {
@@ -90,24 +90,7 @@ async fn main(_spawner: Spawner) {
     let usb = {
         let vbus = SOFTWARE_VBUS.get_or_init(|| SoftwareVbusDetect::new(true, true));
         let driver = embassy_nrf::usb::Driver::new(p.USBD, Irqs, vbus);
-        let opts = UsbOpts {
-            config: {
-                let mut config = UsbDriverConfig::new(0xc0de, 0xcafe);
-                config.manufacturer = Some("nazo6");
-                config.product = Some("negL");
-                config.serial_number = Some("12345678");
-                config.max_power = 100;
-                config.max_packet_size_0 = 64;
-                config.supports_remote_wakeup = true;
-
-                config
-            },
-            mouse_poll_interval: 1,
-            kb_poll_interval: 5,
-            driver,
-            #[cfg(feature = "defmt")]
-            defmt_usb_use_dtr: true,
-        };
+        let opts = CommonUsbDriverConfig::new(driver, 0xc0de, 0xcafe);
         Some(CommonUsbDriverBuilder::new(opts))
     };
 

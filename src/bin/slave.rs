@@ -18,6 +18,8 @@ bind_interrupts!(pub struct Irqs {
 async fn main(_spawner: Spawner) {
     let p = negl_nrf52840::init_peri();
 
+    let _ = negl_nrf52840::init_sd().await;
+
     let spi = create_spi!(p);
 
     let drivers = Drivers {
