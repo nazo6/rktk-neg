@@ -32,19 +32,26 @@ pub fn init_peri() -> Peripherals {
     let p = {
         let config = {
             let mut config = embassy_nrf::config::Config::default();
-            config.gpiote_interrupt_priority = Priority::P2;
-            config.time_interrupt_priority = Priority::P2;
+            #[cfg(feature = "sd")]
+            {
+                config.gpiote_interrupt_priority = Priority::P2;
+                config.time_interrupt_priority = Priority::P2;
+            }
             config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
             config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
+
             config
         };
         embassy_nrf::init(config)
     };
 
-    interrupt::USBD.set_priority(Priority::P2);
-    interrupt::SPI2.set_priority(Priority::P2);
-    interrupt::SPIM3.set_priority(Priority::P2);
-    interrupt::UARTE0.set_priority(Priority::P2);
+    #[cfg(feature = "sd")]
+    {
+        interrupt::USBD.set_priority(Priority::P2);
+        interrupt::SPI2.set_priority(Priority::P2);
+        interrupt::SPIM3.set_priority(Priority::P2);
+        interrupt::UARTE0.set_priority(Priority::P2);
+    }
 
     #[cfg(feature = "alloc")]
     {
@@ -58,12 +65,12 @@ pub fn init_peri() -> Peripherals {
 }
 
 #[cfg(feature = "sd")]
-use rktk_drivers_nrf::softdevice::ble::NrfBleDriverBuilder;
+use rktk_drivers_nrf::softdevice::ble::SoftdeviceBleReporterBuilder;
 #[cfg(feature = "sd")]
 use rktk_drivers_nrf::softdevice::flash::SharedFlash;
 
 #[cfg(feature = "sd")]
-pub async fn init_sd() -> (NrfBleDriverBuilder, &'static SharedFlash) {
+pub async fn init_sd() -> (SoftdeviceBleReporterBuilder, &'static SharedFlash) {
     let sd = init_softdevice("negL");
 
     let server = init_ble_server(
@@ -80,7 +87,10 @@ pub async fn init_sd() -> (NrfBleDriverBuilder, &'static SharedFlash) {
     rktk_drivers_nrf::softdevice::start_softdevice(sd).await;
     embassy_time::Timer::after_millis(200).await;
 
-    (NrfBleDriverBuilder::new(sd, server, "negL", flash), flash)
+    (
+        SoftdeviceBleReporterBuilder::new(sd, server, "negL", flash),
+        flash,
+    )
 }
 
 pub const HAND: Hand = {

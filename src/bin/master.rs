@@ -10,7 +10,7 @@ use rktk::{
     drivers::{dummy, Drivers},
     singleton,
 };
-use rktk_drivers_common::usb::{CommonUsbDriverBuilder, CommonUsbDriverConfig};
+use rktk_drivers_common::usb::{CommonUsbDriverConfig, CommonUsbReporterBuilder, UsbDriverConfig};
 
 #[cfg(not(feature = "trouble"))]
 bind_interrupts!(pub struct Irqs {
@@ -85,13 +85,13 @@ async fn main(_spawner: Spawner) {
         }
     }
 
-    rktk_log::warn!("Hello");
-
     let usb = {
         let vbus = SOFTWARE_VBUS.get_or_init(|| SoftwareVbusDetect::new(true, true));
-        let driver = embassy_nrf::usb::Driver::new(p.USBD, Irqs, vbus);
-        let opts = CommonUsbDriverConfig::new(driver, 0xc0de, 0xcafe);
-        Some(CommonUsbDriverBuilder::new(opts))
+        let embassy_driver = embassy_nrf::usb::Driver::new(p.USBD, Irqs, vbus);
+        let mut driver_config = UsbDriverConfig::new(0xc0de, 0xcafe);
+        driver_config.product = Some("negL");
+        let opts = CommonUsbDriverConfig::new(embassy_driver, driver_config);
+        Some(CommonUsbReporterBuilder::new(opts))
     };
 
     // let storage = rktk_drivers_nrf::softdevice::flash::create_storage_driver(flash, &cache);

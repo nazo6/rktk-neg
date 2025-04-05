@@ -17,6 +17,11 @@
       "command": "cargo run --release --bin master --features right,sd"
     },
     {
+      "label": "deploy-master-right-raw",
+      "type": "shell",
+      "command": "cargo run --release --bin master --features right,cs-impl"
+    },
+    {
       "label": "deploy-slave-left",
       "type": "shell",
       "command": "cargo run --release --bin slave --features left,sd"

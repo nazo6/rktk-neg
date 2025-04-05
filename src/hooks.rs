@@ -8,7 +8,7 @@ use rktk::{
         rgb::{RgbCommand, RgbDriver, RgbMode},
     },
     hooks::{
-        channels::rgb_sender,
+        channels::rgb::rgb_sender,
         empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
         interface::{master::Report, rgb::RGB8, MasterHooks, RgbHooks},
         Hooks,
