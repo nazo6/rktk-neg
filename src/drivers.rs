@@ -53,10 +53,10 @@ macro_rules! driver_display {
     ($p:ident) => {{
         use embassy_nrf::twim::Twim;
         use rktk_drivers_common::display::ssd1306;
-        use rktk_drivers_common::display::ssd1306::Ssd1306Display;
+        use rktk_drivers_common::display::ssd1306::Ssd1306Driver;
         use rktk_drivers_common::panic_utils;
 
-        let mut display = Ssd1306Display::new(
+        let mut display = Ssd1306Driver::new(
             Twim::new(
                 $p.TWISPI0,
                 Irqs,
@@ -65,6 +65,7 @@ macro_rules! driver_display {
                 rktk_drivers_nrf::display::ssd1306::recommended_i2c_config(),
             ),
             ssd1306::prelude::DisplaySize128x32,
+            ssd1306::prelude::DisplayRotation::Rotate90,
         );
         panic_utils::display_message_if_panicked(&mut display).await;
         display

@@ -6,7 +6,6 @@ use embassy_nrf::{
     interrupt::{self, InterruptExt as _, Priority},
     Peripherals,
 };
-use rktk::interface::Hand;
 use rktk_drivers_common::panic_utils;
 
 pub mod drivers;
@@ -92,17 +91,6 @@ pub async fn init_sd() -> (SoftdeviceBleReporterBuilder, &'static SharedFlash) {
         flash,
     )
 }
-
-pub const HAND: Hand = {
-    #[cfg(feature = "left")]
-    {
-        Hand::Left
-    }
-    #[cfg(feature = "right")]
-    {
-        Hand::Right
-    }
-};
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {

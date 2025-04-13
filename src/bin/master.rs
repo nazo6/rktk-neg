@@ -110,5 +110,5 @@ async fn main(_spawner: Spawner) {
         encoder: Some(driver_encoder!(p)),
     };
 
-    rktk::task::start(drivers, &keymap::KEYMAP, Some(HAND), hooks!(p)).await;
+    rktk::task::start(drivers, &keymap::KEYMAP, Some(misc::HAND), hooks!(p)).await;
 }
