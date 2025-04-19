@@ -2,10 +2,7 @@
 
 use core::panic::PanicInfo;
 
-use embassy_nrf::{
-    interrupt::{self, InterruptExt as _, Priority},
-    Peripherals,
-};
+use embassy_nrf::Peripherals;
 use rktk::interface::Hand;
 use rktk_drivers_common::panic_utils;
 
@@ -34,6 +31,7 @@ pub fn init_peri() -> Peripherals {
             let mut config = embassy_nrf::config::Config::default();
             #[cfg(feature = "sd")]
             {
+                use embassy_nrf::interrupt::Priority;
                 config.gpiote_interrupt_priority = Priority::P2;
                 config.time_interrupt_priority = Priority::P2;
             }
@@ -47,6 +45,7 @@ pub fn init_peri() -> Peripherals {
 
     #[cfg(feature = "sd")]
     {
+        use embassy_nrf::interrupt::{self, *};
         interrupt::USBD.set_priority(Priority::P2);
         interrupt::SPI2.set_priority(Priority::P2);
         interrupt::SPIM3.set_priority(Priority::P2);
