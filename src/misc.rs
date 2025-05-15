@@ -1,3 +1,4 @@
+use rktk::interface::Hand;
 use rktk_drivers_common::mouse::paw3395;
 
 pub const PAW3395_CONFIG: paw3395::config::Config = paw3395::config::Config {
@@ -16,3 +17,14 @@ pub fn translate_key_position(row: usize, col: usize) -> Option<(usize, usize)> 
         Some((row, col))
     }
 }
+
+pub const HAND: Hand = {
+    #[cfg(feature = "left")]
+    {
+        Hand::Left
+    }
+    #[cfg(feature = "right")]
+    {
+        Hand::Right
+    }
+};
