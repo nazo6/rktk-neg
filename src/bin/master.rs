@@ -7,6 +7,7 @@ use embassy_nrf::{bind_interrupts, usb::vbus_detect::SoftwareVbusDetect};
 use negl_nrf52840::*;
 use once_cell::sync::OnceCell;
 use rktk::{
+    config::new_rktk_opts,
     drivers::{dummy, Drivers},
     singleton,
 };
@@ -110,5 +111,10 @@ async fn main(_spawner: Spawner) {
         encoder: Some(driver_encoder!(p)),
     };
 
-    rktk::task::start(drivers, &keymap::KEYMAP, Some(misc::HAND), hooks!(p)).await;
+    rktk::task::start(
+        drivers,
+        hooks!(p),
+        new_rktk_opts(&keymap::KEYMAP, Some(misc::HAND)),
+    )
+    .await;
 }

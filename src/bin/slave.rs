@@ -5,7 +5,10 @@
 use embassy_executor::Spawner;
 use embassy_nrf::bind_interrupts;
 use negl_nrf52840::*;
-use rktk::drivers::{dummy, Drivers};
+use rktk::{
+    config::new_rktk_opts,
+    drivers::{dummy, Drivers},
+};
 
 bind_interrupts!(pub struct Irqs {
     USBD => embassy_nrf::usb::InterruptHandler<embassy_nrf::peripherals::USBD>;
@@ -36,5 +39,10 @@ async fn main(_spawner: Spawner) {
         encoder: Some(driver_encoder!(p)),
     };
 
-    rktk::task::start(drivers, &keymap::KEYMAP, Some(misc::HAND), hooks!(p)).await;
+    rktk::task::start(
+        drivers,
+        hooks!(p),
+        new_rktk_opts(&keymap::KEYMAP, Some(misc::HAND)),
+    )
+    .await;
 }
