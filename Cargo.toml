@@ -55,10 +55,10 @@ nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev = "e5dbb34d5509
 ], optional = true }
 
 [patch.crates-io]
-rktk = { path = "../../rktk/lib/rktk" }
-rktk-drivers-common = { path = "../../rktk/lib/rktk-drivers-common/" }
-rktk-drivers-nrf = { path = "../../rktk/lib/rktk-drivers-nrf/" }
-rktk-log = { path = "../../rktk/lib/rktk-log" }
+rktk = { git = "https://github.com/nazo6/rktk", tag = "v0.2.0" }
+rktk-drivers-common = { git = "https://github.com/nazo6/rktk", tag = "v0.2.0" }
+rktk-drivers-nrf = { git = "https://github.com/nazo6/rktk", tag = "v0.2.0" }
+rktk-log = { git = "https://github.com/nazo6/rktk", tag = "v0.2.0" }
 
 [features]
 _check = ["trouble", "sd", "log", "left"]

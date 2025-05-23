@@ -1763,6 +1763,7 @@ dependencies = [
 [[package]]
 name = "rktk"
 version = "0.2.0"
+source = "git+https://github.com/nazo6/rktk?tag=v0.2.0#9b4c062084bc2340d02eafcdb5b05177ce02b5ea"
 dependencies = [
  "const-gen",
  "defmt 1.0.1",
@@ -1798,6 +1799,7 @@ dependencies = [
 [[package]]
 name = "rktk-drivers-common"
 version = "0.2.0"
+source = "git+https://github.com/nazo6/rktk?tag=v0.2.0#9b4c062084bc2340d02eafcdb5b05177ce02b5ea"
 dependencies = [
  "critical-section",
  "defmt 1.0.1",
@@ -1828,6 +1830,7 @@ dependencies = [
 [[package]]
 name = "rktk-drivers-nrf"
 version = "0.2.0"
+source = "git+https://github.com/nazo6/rktk?tag=v0.2.0#9b4c062084bc2340d02eafcdb5b05177ce02b5ea"
 dependencies = [
  "atomic-pool",
  "bitvec",
@@ -1863,6 +1866,7 @@ dependencies = [
 [[package]]
 name = "rktk-keymanager"
 version = "0.2.0"
+source = "git+https://github.com/nazo6/rktk?tag=v0.2.0#9b4c062084bc2340d02eafcdb5b05177ce02b5ea"
 dependencies = [
  "defmt 1.0.1",
  "document-features",
@@ -1879,6 +1883,7 @@ dependencies = [
 [[package]]
 name = "rktk-log"
 version = "0.2.0"
+source = "git+https://github.com/nazo6/rktk?tag=v0.2.0#9b4c062084bc2340d02eafcdb5b05177ce02b5ea"
 dependencies = [
  "defmt 1.0.1",
 ]
@@ -1886,6 +1891,7 @@ dependencies = [
 [[package]]
 name = "rktk-rrp"
 version = "0.2.0"
+source = "git+https://github.com/nazo6/rktk?tag=v0.2.0#9b4c062084bc2340d02eafcdb5b05177ce02b5ea"
 dependencies = [
  "embedded-io-async",
  "futures",
