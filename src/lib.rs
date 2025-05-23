@@ -3,7 +3,7 @@
 use core::panic::PanicInfo;
 
 use embassy_nrf::Peripherals;
-use rktk::interface::Hand;
+use rktk::config::Hand;
 use rktk_drivers_common::panic_utils;
 
 pub mod drivers;

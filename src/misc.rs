@@ -1,4 +1,4 @@
-use rktk::interface::Hand;
+use rktk::config::Hand;
 use rktk_drivers_common::mouse::paw3395;
 
 pub const PAW3395_CONFIG: paw3395::config::Config = paw3395::config::Config {
