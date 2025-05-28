@@ -77,7 +77,10 @@ macro_rules! driver_mouse {
     ($p:ident, $spi:ident) => {{
         use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice;
         use embassy_nrf::gpio::{Output, OutputDrive};
+        #[cfg(feature = "paw3395")]
         use rktk_drivers_common::mouse::paw3395::Paw3395;
+        #[cfg(feature = "pmw3360")]
+        use rktk_drivers_common::mouse::pmw3360::Pmw3360;
 
         let ball_cs = Output::new(
             $p.P1_06,
@@ -85,7 +88,15 @@ macro_rules! driver_mouse {
             OutputDrive::Standard,
         );
         let ball_spi_device = SpiDevice::new(&$spi, ball_cs);
-        Paw3395::new(ball_spi_device, misc::PAW3395_CONFIG)
+
+        #[cfg(feature = "paw3395")]
+        {
+            Paw3395::new(ball_spi_device, misc::PAW3395_CONFIG)
+        }
+        #[cfg(feature = "pmw3360")]
+        {
+            Pmw3360::new(ball_spi_device)
+        }
     }};
 }
 
