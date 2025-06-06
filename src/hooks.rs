@@ -20,7 +20,10 @@ pub fn create_hooks(
 ) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
     Hooks {
         common: EmptyCommonHooks,
-        master: NegMasterHooks { latest_led: None },
+        master: NegMasterHooks {
+            latest_led: None,
+            latest_highest_layer: 100,
+        },
         slave: EmptySlaveHooks,
         rgb: NegRgbHooks {
             led_off: embassy_nrf::gpio::Output::new(
@@ -34,15 +37,25 @@ pub fn create_hooks(
 
 pub struct NegMasterHooks {
     latest_led: Option<RgbCommand>,
+    latest_highest_layer: u8,
 }
 
 impl MasterHooks for NegMasterHooks {
     async fn on_state_update(
         &mut self,
         state_report: &mut Report,
-        _usb_reporter: &Option<impl ReporterDriver>,
+        usb_reporter: &Option<impl ReporterDriver>,
         _ble_reporter: &Option<impl ReporterDriver>,
     ) -> bool {
+        if let Some(usb) = usb_reporter {
+            if self.latest_highest_layer != state_report.highest_layer {
+                let _ = usb
+                    .send_raw_hid_data(&[0x01, state_report.highest_layer])
+                    .await;
+                self.latest_highest_layer = state_report.highest_layer;
+            }
+        }
+
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
             2 => RgbCommand::Start(RgbMode::SolidColor(10, 0, 0)),
