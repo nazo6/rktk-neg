@@ -177,6 +177,6 @@ macro_rules! driver_rgb {
     ($p:ident) => {{
         use rktk_drivers_nrf::rgb::ws2812_pwm::Ws2812Pwm;
 
-        Ws2812Pwm::new($p.PWM0, $p.P0_24)
+        Ws2812Pwm::<1024, _, _, _, _>::new($p.PWM0, $p.P0_24)
     }};
 }
