@@ -32,6 +32,12 @@ macro_rules! driver_split {
         use rktk_drivers_nrf::split::uart_full_duplex::UartFullDuplexSplitDriver;
 
         let uarte_config = embassy_nrf::uarte::Config::default();
+
+        #[cfg(feature = "reversed-split-pins")]
+        let (sp1, sp2) = ($p.P0_06, $p.P0_08);
+        #[cfg(not(feature = "reversed-split-pins"))]
+        let (sp1, sp2) = ($p.P0_08, $p.P0_06);
+
         UartFullDuplexSplitDriver::new(BufferedUarte::new(
             $p.UARTE0,
             $p.TIMER1,
@@ -39,8 +45,8 @@ macro_rules! driver_split {
             $p.PPI_CH1,
             $p.PPI_GROUP0,
             Irqs,
-            $p.P0_08,
-            $p.P0_06,
+            sp1,
+            sp2,
             uarte_config,
             singleton!([0; 256], [u8; 256]),
             singleton!([0; 256], [u8; 256]),

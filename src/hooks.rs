@@ -5,12 +5,12 @@ use embassy_nrf::{
 use rktk::{
     drivers::interface::{
         reporter::ReporterDriver,
-        rgb::{RgbCommand, RgbDriver, RgbMode},
+        rgb::{RgbCommand, RgbDriver, RgbMode, RgbPattern},
     },
     hooks::{
         channels::rgb::rgb_sender,
         empty_hooks::{EmptyCommonHooks, EmptySlaveHooks},
-        interface::{master::Report, rgb::RGB8, MasterHooks, RgbHooks},
+        interface::{master::Report, MasterHooks, RgbHooks},
         Hooks,
     },
 };
@@ -59,16 +59,15 @@ impl MasterHooks for NegMasterHooks {
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
             2 => RgbCommand::Start(RgbMode::SolidColor(10, 0, 0)),
-            3 => RgbCommand::Start(RgbMode::SolidColor(0, 10, 0)),
+            3 => RgbCommand::Start(RgbMode::Pattern(RgbPattern::Rainbow(0.3 / 1e3, 1.0))),
             4 => RgbCommand::Start(RgbMode::SolidColor(10, 10, 0)),
-            _ => RgbCommand::Reset,
+            _ => RgbCommand::Start(RgbMode::Off),
         };
 
         if let Some(latest_led) = &self.latest_led {
             if led != *latest_led {
                 let rgb_sender = rgb_sender();
                 let _ = rgb_sender.try_send(led.clone());
-                // let _ = m2s_tx.try_send(MasterToSlave::Rgb(led.clone()));
             }
         }
 
@@ -84,15 +83,10 @@ pub struct NegRgbHooks {
 
 impl RgbHooks for NegRgbHooks {
     async fn on_rgb_init(&mut self, _driver: &mut impl RgbDriver) {
-        self.led_off.set_high();
+        self.led_off.set_low();
     }
-    async fn on_rgb_process<const N: usize>(
-        &mut self,
-        _driver: &mut impl RgbDriver,
-        command: &RgbCommand,
-        _rgb_data: &mut Option<[RGB8; N]>,
-    ) {
-        if *command == RgbCommand::Reset {
+    async fn on_rgb_process(&mut self, _driver: &mut impl RgbDriver, rgb_mode: &mut RgbMode) {
+        if *rgb_mode == RgbMode::Off {
             self.led_off.set_high();
         } else {
             self.led_off.set_low();

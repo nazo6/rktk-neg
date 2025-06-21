@@ -5,10 +5,7 @@
 use embassy_executor::Spawner;
 use embassy_nrf::bind_interrupts;
 use negl_nrf52840::*;
-use rktk::{
-    config::new_rktk_opts,
-    drivers::{dummy, Drivers},
-};
+use rktk::drivers::{dummy, Drivers};
 
 bind_interrupts!(pub struct Irqs {
     USBD => embassy_nrf::usb::InterruptHandler<embassy_nrf::peripherals::USBD>;
@@ -21,6 +18,7 @@ bind_interrupts!(pub struct Irqs {
 async fn main(_spawner: Spawner) {
     let p = negl_nrf52840::init_peri();
 
+    #[cfg(feature = "sd")]
     let _ = negl_nrf52840::init_sd().await;
 
     let spi = create_spi!(p);
@@ -38,11 +36,5 @@ async fn main(_spawner: Spawner) {
         debounce: Some(driver_debounce!()),
         encoder: Some(driver_encoder!(p)),
     };
-
-    rktk::task::start(
-        drivers,
-        hooks!(p),
-        new_rktk_opts(&keymap::KEYMAP, Some(misc::HAND)),
-    )
-    .await;
+    rktk::task::start(drivers, hooks!(p), misc::get_opts()).await;
 }

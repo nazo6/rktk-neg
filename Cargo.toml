@@ -63,7 +63,7 @@ rktk-log = { path = "../../rktk/lib/rktk-log" }
 [features]
 _check = ["trouble", "sd", "log", "left"]
 
-default = ["defmt", "rrp", "alloc", "paw3395"]
+default = ["defmt", "rrp", "alloc", "pmw3360"]
 
 alloc = ["dep:embedded-alloc", "rktk/alloc"]
 right = []
@@ -88,15 +88,15 @@ log = [
 ]
 
 sd = ["rktk-drivers-nrf/softdevice-ble", "dep:nrf-softdevice"]
-
 trouble = [
   "dep:rand_chacha",
   "dep:nrf-sdc",
   "rktk-drivers-nrf/sdc",
   "rktk-drivers-common/reporter-trouble",
 ]
-
 cs-impl = ["cortex-m/critical-section-single-core"]
 
 paw3395 = []
 pmw3360 = []
+
+reversed-split-pins = []
