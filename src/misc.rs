@@ -52,7 +52,7 @@ mod layout {
     use rktk::config::rgb::{layout::*, layout2d};
 
     // Right half RGB layout:
-    // h      -.6 -.4 -.2 0.0 +.2 +.4 +.6 +.8
+    // h      +.1 +.2 +.3 +.4 +.5 +.6 +.7 +.8
     // v-------------------------------------
     // +1.0 |           4   8  12  16  20  25
     // +0.5 |           5   9  13  17  21  26
@@ -62,30 +62,30 @@ mod layout {
     layout2d!(
         pub LayoutRight,
         [
-            Shape2d::Point(Vec2::new(-0.6, -1.0)),
-            Shape2d::Point(Vec2::new(-0.4, -0.5)),
-            Shape2d::Point(Vec2::new(-0.4, -1.0)),
+            Shape2d::Point(Vec2::new(0.1, -1.0)),
+            Shape2d::Point(Vec2::new(0.2, -0.5)),
+            Shape2d::Point(Vec2::new(0.2, -1.0)),
             Shape2d::Grid {
-                start: Vec2::new(-0.2, 1.0),
-                horizontal_end: Vec2::new(0.4, 1.0),
-                vertical_end: Vec2::new(-0.2, -0.5),
+                start: Vec2::new(0.3, 1.0),
+                vertical_end: Vec2::new(0.6, 1.0),
+                horizontal_end: Vec2::new(0.3, -0.5),
                 horizontal_pixel_count: 4,
                 vertical_pixel_count: 4,
                 serpentine: true,
             },
             Shape2d::Grid {
-                start: Vec2::new(0.6, 1.0),
-                horizontal_end: Vec2::new(0.8,1.0),
-                vertical_end: Vec2::new(0.6,-1.0),
-                horizontal_pixel_count: 2,
-                vertical_pixel_count: 5,
+                start: Vec2::new(0.7, 1.0),
+                vertical_end: Vec2::new(0.8, 1.0),
+                horizontal_end: Vec2::new(0.7,-1.0),
+                horizontal_pixel_count: 5,
+                vertical_pixel_count: 2,
                 serpentine: true,
             }
         ]
     );
 
     // Left half RGB layout:
-    // h      -.6 -.4 -.2 0.0 +.2 +.4 +.6 +.8
+    // h      -.8 -.7 -.6 -.5 -.4 -.3 -.2 -.1
     // v-------------------------------------
     // +1.0 |  33  28  23  18  13  8   3
     // +0.5 |  34  29  24  19  14  9   4
@@ -95,12 +95,12 @@ mod layout {
     layout2d!(
         pub LayoutLeft,
         [
-            Shape2d::Point(Vec2::new(0.8, -0.5)),
-            Shape2d::Point(Vec2::new(0.8, -1.0)),
+            Shape2d::Point(Vec2::new(-0.1, -0.5)),
+            Shape2d::Point(Vec2::new(-0.1, -1.0)),
             Shape2d::Grid {
-                start: Vec2::new(0.6, 1.0),
-                horizontal_end: Vec2::new(-0.6, 1.0),
-                vertical_end: Vec2::new(0.6, -1.0),
+                start: Vec2::new(-0.2, 1.0),
+                vertical_end: Vec2::new(-0.8, 1.0),
+                horizontal_end: Vec2::new(-0.2, -1.0),
                 horizontal_pixel_count: 7,
                 vertical_pixel_count: 5,
                 serpentine: true,

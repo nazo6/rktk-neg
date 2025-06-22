@@ -4,9 +4,7 @@
     "keyboard": {
       "cols": 16,
       "rows": 5,
-      "encoder_count": 1,
-      "right_rgb_count": 34,
-      "left_rgb_count": 37
+      "encoder_count": 1
     },
     "key_manager": {
       "combo_key_max_definitions": 0,
