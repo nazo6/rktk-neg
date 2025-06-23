@@ -24,12 +24,12 @@
     {
       "label": "deploy-slave-left-raw",
       "type": "shell",
-      "command": "cargo run --release --bin slave --features left,cs-impl,reversed-split-pins"
+      "command": "cargo run --release --bin slave --features left,cs-impl"
     },
     {
       "label": "deploy-master-left-raw",
       "type": "shell",
-      "command": "cargo run --release --bin master --features left,cs-impl,reversed-split-pins"
+      "command": "cargo run --release --bin master --features left,cs-impl"
     }
   ]
 }

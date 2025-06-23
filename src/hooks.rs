@@ -58,7 +58,7 @@ impl MasterHooks for NegMasterHooks {
 
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
-            2 => RgbCommand::Start(RgbMode::Pattern(RgbPattern::Rainbow(0.3 / 1e3, 1.0))),
+            2 => RgbCommand::Start(RgbMode::SolidColor(0, 10, 0)),
             3 => RgbCommand::Start(RgbMode::Pattern(RgbPattern::NoisePerlin)),
             4 => RgbCommand::Start(RgbMode::SolidColor(10, 10, 0)),
             _ => RgbCommand::Start(RgbMode::Off),
