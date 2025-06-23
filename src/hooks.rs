@@ -59,7 +59,7 @@ impl MasterHooks for NegMasterHooks {
         let led = match state_report.highest_layer {
             1 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
             2 => RgbCommand::Start(RgbMode::Pattern(RgbPattern::Rainbow(0.3 / 1e3, 1.0))),
-            3 => RgbCommand::Start(RgbMode::SolidColor(0, 0, 10)),
+            3 => RgbCommand::Start(RgbMode::Pattern(RgbPattern::NoisePerlin)),
             4 => RgbCommand::Start(RgbMode::SolidColor(10, 10, 0)),
             _ => RgbCommand::Start(RgbMode::Off),
         };
@@ -82,7 +82,7 @@ pub struct NegRgbHooks {
 }
 
 impl RgbHooks for NegRgbHooks {
-    async fn on_rgb_init(&mut self, _driver: &mut impl RgbDriver) {
+    async fn on_rgb_init(&mut self, _driver: &mut impl RgbDriver, _is_master: bool) {
         self.led_off.set_low();
     }
     async fn on_rgb_process(&mut self, _driver: &mut impl RgbDriver, rgb_mode: &mut RgbMode) {
