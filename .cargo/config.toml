@@ -18,4 +18,6 @@ rustflags = ["-Zlocation-detail=none"]
 
 [unstable]
 build-std = ["core", "alloc"]
-build-std-features = ["panic_immediate_abort", "optimize_for_size"]
+# This seems to be broken
+# build-std-features = ["panic_immediate_abort", "optimize_for_size"]
+build-std-features = ["panic_immediate_abort"]
