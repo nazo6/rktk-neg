@@ -1,6 +1,6 @@
 use embassy_nrf::{
     gpio::{Output, Pin},
-    Peripheral,
+    Peri,
 };
 use rktk::{
     drivers::interface::{
@@ -16,7 +16,7 @@ use rktk::{
 };
 
 pub fn create_hooks(
-    led_off_pin: impl Peripheral<P = impl Pin> + 'static,
+    led_off_pin: Peri<'static, impl Pin>,
 ) -> Hooks<EmptyCommonHooks, NegMasterHooks, EmptySlaveHooks, NegRgbHooks> {
     Hooks {
         common: EmptyCommonHooks,

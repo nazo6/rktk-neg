@@ -21,13 +21,13 @@ embassy-executor = { version = "0.7.0", features = [
   "executor-interrupt",
   "nightly",
 ] }
-embassy-nrf = { version = "0.3.0", features = [
+embassy-nrf = { version = "0.4.1", features = [
   "gpiote",
   "time-driver-rtc1",
   "nrf52840",
   "nfc-pins-as-gpio",
 ] }
-embassy-sync = { version = "0.6.0" }
+embassy-sync = { version = "0.7.0" }
 
 once_cell = { version = "1.19.0", default-features = false, features = [
   "atomic-polyfill",
@@ -50,15 +50,15 @@ nrf-softdevice = { version = "0.1.0", git = "https://github.com/embassy-rs/nrf-s
 
 # trouble
 rand_chacha = { version = "0.3", default-features = false, optional = true }
-nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", rev = "e5dbb34d5509934490bf94e6eb466d7da8ce9ef4", version = "0.1.0", default-features = false, features = [
-  "nrf52840",
-], optional = true }
+nrf-sdc = { version = "0.1.1", optional = true, features = ["nrf52840"] }
 
 [patch.crates-io]
 rktk = { path = "../../rktk/lib/rktk" }
 rktk-drivers-common = { path = "../../rktk/lib/rktk-drivers-common/" }
 rktk-drivers-nrf = { path = "../../rktk/lib/rktk-drivers-nrf/" }
 rktk-log = { path = "../../rktk/lib/rktk-log" }
+
+embassy-embedded-hal = { git = "https://github.com/embassy-rs/embassy" }
 
 [features]
 _check = ["trouble", "sd", "log", "left"]

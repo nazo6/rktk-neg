@@ -46,6 +46,7 @@ async fn main(_spawner: Spawner) {
 
     #[cfg(feature = "trouble")]
     let trouble_ble_reporter = {
+        use embassy_nrf::mode::Async;
         use rand_chacha::{rand_core::SeedableRng as _, ChaCha12Rng};
         use rktk_drivers_common::trouble::reporter::{
             TroubleReporterBuilder, TroubleReporterConfig,
@@ -54,7 +55,7 @@ async fn main(_spawner: Spawner) {
 
         let mut rng = singleton!(
             embassy_nrf::rng::Rng::new(p.RNG, Irqs),
-            embassy_nrf::rng::Rng<embassy_nrf::peripherals::RNG>
+            embassy_nrf::rng::Rng<embassy_nrf::peripherals::RNG, Async>
         );
         let rng_2 = singleton!(ChaCha12Rng::from_rng(&mut rng).unwrap(), ChaCha12Rng);
         init_sdc!(

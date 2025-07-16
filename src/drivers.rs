@@ -44,9 +44,9 @@ macro_rules! driver_split {
             $p.PPI_CH0,
             $p.PPI_CH1,
             $p.PPI_GROUP0,
-            Irqs,
             sp1,
             sp2,
+            Irqs,
             uarte_config,
             singleton!([0; 256], [u8; 256]),
             singleton!([0; 256], [u8; 256]),
@@ -69,6 +69,7 @@ macro_rules! driver_display {
                 $p.P1_00,
                 $p.P0_11,
                 rktk_drivers_nrf::display::ssd1306::recommended_i2c_config(),
+                &mut [],
             ),
             ssd1306::prelude::DisplaySize128x32,
             ssd1306::prelude::DisplayRotation::Rotate90,
@@ -177,6 +178,6 @@ macro_rules! driver_rgb {
     ($p:ident) => {{
         use rktk_drivers_nrf::rgb::ws2812_pwm::Ws2812Pwm;
 
-        Ws2812Pwm::<1024, _, _, _, _>::new($p.PWM0, $p.P0_24)
+        Ws2812Pwm::<1024, _, _>::new($p.PWM0, $p.P0_24)
     }};
 }
