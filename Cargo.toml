@@ -58,8 +58,6 @@ rktk-drivers-common = { path = "../../rktk/lib/rktk-drivers-common/" }
 rktk-drivers-nrf = { path = "../../rktk/lib/rktk-drivers-nrf/" }
 rktk-log = { path = "../../rktk/lib/rktk-log" }
 
-embassy-embedded-hal = { git = "https://github.com/embassy-rs/embassy" }
-
 [features]
 _check = ["trouble", "sd", "log", "left"]
 
